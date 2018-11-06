@@ -1,0 +1,7 @@
+{
+    "*.ts": [
+        "make format",
+        "make test",
+        "make lint"
+    ]
+}

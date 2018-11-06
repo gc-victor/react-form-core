@@ -1,0 +1,62 @@
+{
+    "name": "react-form-core",
+    "description": "React Form Core is an utility to create your own form elements components",
+    "version": "0.0.0",
+    "license": "MIT",
+    "private": true,
+    "keywords": [
+        "form",
+        "react",
+        "react-component",
+        "react-form",
+        "react-form-core"
+    ],
+    "main": "dist/index.js",
+    "umd:main": "dist/index.umd.js",
+    "module": "dist/index.m.js",
+    "source": "index.ts",
+    "typings": "dist/**/index.d.ts",
+    "types": "dist/**/index.d.ts",
+    "directories": {
+        "test": "__tests__"
+    },
+    "devDependencies": {
+        "@storybook/addon-options": "4.0.2",
+        "@storybook/cli": "4.0.2",
+        "@storybook/react": "4.0.2",
+        "@types/jest": "23.3.9",
+        "@types/node": "10.12.1",
+        "@types/react": "16.4.18",
+        "@types/react-dom": "16.0.9",
+        "@types/react-test-renderer": "16.0.3",
+        "@types/storybook__react": "3.0.9",
+        "awesome-typescript-loader": "5.2.1",
+        "babel-core": "6.26.3",
+        "babel-loader": "8.0.4",
+        "husky": "1.1.2",
+        "jest": "23.6.0",
+        "lint-staged": "7.3.0",
+        "microbundle": "0.7.0",
+        "prettier": "1.14.3",
+        "react": "16.6.0",
+        "react-dom": "16.6.0",
+        "react-test-renderer": "16.6.0",
+        "storybook-readme": "4.0.2",
+        "ts-jest": "23.10.4",
+        "ts-node": "7.0.1",
+        "tslint": "5.11.0",
+        "tslint-config-prettier": "1.15.0",
+        "tslint-plugin-prettier": "2.0.1",
+        "tslint-react": "3.6.0",
+        "typedoc": "0.13.0",
+        "typescript": "3.1.4"
+    },
+    "peerDependencies": {
+        "react": ">=16.0.0"
+    },
+    "scripts": {
+        "precommit": "lint-staged",
+        "storybook": "start-storybook -p 9001 -c .storybook",
+        "storybook:build": "build-storybook -c .storybook -o build-storybook/"
+    }
+}
