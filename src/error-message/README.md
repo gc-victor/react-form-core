@@ -31,9 +31,9 @@ You can see in the examples the two ways to use it. As a HOC or declaring it as 
 
 ```
 <Form>
-    <ErrorMessageElement name={'firstName'} validator={value => value ? 'Error: is truthy!' : ''}>
+    <ErrorMessage name={'firstName'} validator={value => value ? 'Error: is truthy!' : ''}>
         <Input name={'firstName'} />
-    </ErrorMessageElement>
+    </ErrorMessage>
     <Submit>Submit</Submit>
 </Form>
 ```

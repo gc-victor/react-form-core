@@ -17,14 +17,14 @@ You can use npm or yarn to install it.
 Validate form fields and, if needed, adds an error message. 
 
 ```
-import { Form, ErrorMessageElement } from 'react-form-core';
+import { Form, ErrorMessage } from 'react-form-core';
 import { Input } from './components/input';
 import { Submit } from './components/submit';
 
 <Form>
-    <ErrorMessageElement name={'firstName'} validator={value => value ? 'Error: is truthy!' : ''}>
+    <ErrorMessage name={'firstName'} validator={value => value ? 'Error: is truthy!' : ''}>
         <Input name={'firstName'} />
-    </ErrorMessageElement>
+    </ErrorMessage>
     <Submit>Submit</Submit>
 </Form>
 ```
