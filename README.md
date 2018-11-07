@@ -2,6 +2,14 @@
 
 React Form Core is an utility to create your own form elements components
 
+## Install
+
+You can use npm or yarn to install it.
+
+`$ npm install --save react-form-core`
+
+`$ yarn add react-form-core`
+
 ## Components
 
 ### Error Message
@@ -9,6 +17,10 @@ React Form Core is an utility to create your own form elements components
 Validate form fields and, if needed, adds an error message. 
 
 ```
+import { Form, ErrorMessageElement } from 'react-form-core';
+import { Input } from './components/input';
+import { Submit } from './components/submit';
+
 <Form>
     <ErrorMessageElement name={'firstName'} validator={value => value ? 'Error: is truthy!' : ''}>
         <Input name={'firstName'} />
@@ -24,6 +36,8 @@ Validate form fields and, if needed, adds an error message.
 Field element is a wrapper for your form fields elements. It is in charge of setting the value of the field to the form context.
 
 ```
+import { Field } from 'react-form-core';
+
 const Input = (label, name, ...rest) =>
     <label>
         <span>{label}</span>
@@ -40,13 +54,21 @@ const Input = (label, name, ...rest) =>
 Component to manage form actions and events. It has the responsibility of handle his children values and errors.
 
 ```
+import { Form } from 'react-form-core';
+import { Input } from './components/input';
+import { Submit } from './components/submit';
+
 <Form handleSubmit={({ ev, errors, values }) => {}}>
     <Input label={'First name'} name={'firstName'} />
     <Submit>Submit</Submit>
 </Form>
 ```
 
+#### FormConsumer
+
 ```
+import { Form, FormConsumer } from 'react-form-core';
+
 <Form>
     <FormConsumer>
         {({ values }) =>
