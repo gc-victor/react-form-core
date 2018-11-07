@@ -3,9 +3,9 @@ import { FormEvent, FormHTMLAttributes, ReactNode } from 'react';
 export const initialState = {
     value: {
         errors: {},
-        values: {},
         setError: (name: string, error: any) => {},
-        setValue: (name: string, value: any) => {}
+        setValue: (name: string, value: any) => {},
+        values: {}
     }
 };
 export interface Values {

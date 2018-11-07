@@ -10,7 +10,7 @@ class FieldChildrenWrapper extends React.Component<FieldPropsChildren> {
 
         const { children, name, setValue, values, ...rest } = props;
 
-        if (!name) throw Error(`Error: Please, you have to add a name to the form field`);
+        if (!name) { throw Error(`Error: Please, you have to add a name to the form field`); }
 
         this.element = React.cloneElement(children as React.ReactElement<any>, {
             ...rest,
@@ -19,7 +19,7 @@ class FieldChildrenWrapper extends React.Component<FieldPropsChildren> {
         });
     }
 
-    componentDidMount() {
+    public componentDidMount() {
         const { name, setValue } = this.props;
         const props = this.element.props;
         const checkedValue = props.defaultChecked ? props.value : '';
@@ -28,7 +28,7 @@ class FieldChildrenWrapper extends React.Component<FieldPropsChildren> {
         value && setValue(name, value);
     }
 
-    onFieldChange = (ev: React.ChangeEvent<any>) => {
+    public onFieldChange = (ev: React.ChangeEvent<any>) => {
         const { name, onChange, setValue } = this.props;
         const target = ev.target;
         const value =
@@ -40,9 +40,9 @@ class FieldChildrenWrapper extends React.Component<FieldPropsChildren> {
 
         setValue(name, isCheckboxRadioElement ? checkedValue : value);
         onChange && onChange(ev as any);
-    };
+    }
 
-    render() {
+    public render() {
         return (
             <React.Fragment>
                 {this.element}

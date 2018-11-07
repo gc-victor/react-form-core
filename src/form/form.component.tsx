@@ -15,7 +15,7 @@ export class Form extends React.Component<FormProps, State> {
                 setValue: this.setValue,
                 values: {}
             }
-        }
+        };
     }
 
     public deleteError = (name: string) => {
