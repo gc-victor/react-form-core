@@ -2,7 +2,12 @@
     "name": "react-form-core",
     "description": "React Form Core is an utility to create your own form elements components",
     "version": "1.0.0",
+    "author": "Víctor García",
     "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/gc-victor/react-form-core"
+    },
     "keywords": [
         "form",
         "react",
@@ -16,9 +21,6 @@
     "source": "index.ts",
     "typings": "dist/**/index.d.ts",
     "types": "dist/**/index.d.ts",
-    "directories": {
-        "test": "__tests__"
-    },
     "devDependencies": {
         "@storybook/addon-options": "4.0.4",
         "@storybook/cli": "4.0.4",
