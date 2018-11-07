@@ -1,6 +1,8 @@
 BINDIR=node_modules/.bin
 LINT_STAGED=$(BINDIR)/lint-staged
 MICROBUNDLE=$(BINDIR)/microbundle
+STORYBOOK_BUILD=$(BINDIR)/build-storybook
+STORYBOOK_START=$(BINDIR)/start-storybook
 TSLINT=$(BINDIR)/tslint
 JEST=$(BINDIR)/jest
 VERSION=$(shell node -p -e 'require("./package.json").version')
@@ -14,6 +16,8 @@ help :
 	@echo "  make lint-staged\texecute lint-staged"
 	@echo "  make release-minor\trelease a new minor version"
 	@echo "  make release-major\trelease a new major version"
+	@echo "  make story\t\tstart storybook"
+	@echo "  make story-build\tbuild storybook"
 	@echo ""
 
 dist :
@@ -53,7 +57,10 @@ release-major :
 	([ $$? -eq 0 ] && echo "✓ Released new major $(VERSION)" || exit 1) ;\
 
 story :
-	npm run storybook ;\
+	${STORYBOOK_START} -p 9001 -c .storybook ;\
+
+story-build :
+	${STORYBOOK_BUILD} -c .storybook -o build-storybook/ ;\
 
 test :
 	$(JEST) ;\
