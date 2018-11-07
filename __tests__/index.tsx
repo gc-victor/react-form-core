@@ -7,10 +7,6 @@ import { withErrorMessage } from '../src/error-message';
 
 // @see: https://github.com/facebook/jest/issues/3465#issuecomment-398738112
 jest.spyOn(utils, 'debounce').mockImplementation(fn => fn);
-// Mocks requestAnimationFrame in Node.js
-global['requestAnimationFrame'] = function(callback: () => {}) {
-    callback();
-};
 
 function submit(el: any) {
     el.props.onSubmit({ preventDefault: () => {} });
