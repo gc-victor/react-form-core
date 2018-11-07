@@ -1,1 +1,5 @@
-{}
+{
+  "hooks": {
+    "pre-commit": "make lint-staged"
+  }
+}

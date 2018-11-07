@@ -1,4 +1,5 @@
 BINDIR=node_modules/.bin
+LINT_STAGED=$(BINDIR)/lint-staged
 MICROBUNDLE=$(BINDIR)/microbundle
 TSLINT=$(BINDIR)/tslint
 JEST=$(BINDIR)/jest
@@ -10,6 +11,7 @@ help :
 	@echo "  make dist\t\tbuild dist (e.g. 'make dist')"
 	@echo "  make format\t\tformat (e.g. 'make format')"
 	@echo "  make lint\t\tlint (e.g. 'make lint')"
+	@echo "  make lint-staged\texecute lint-staged"
 	@echo "  make release-minor\trelease a new minor version"
 	@echo "  make release-major\trelease a new major version"
 	@echo ""
@@ -24,6 +26,9 @@ format :
 lint :
 	$(TSLINT) --fix --config tslint.json --project tsconfig.json || exit $? ; \
 	echo "✓ Lint passed" ;\
+
+lint-staged:
+	$(LINT_STAGED)
 
 release :
 	git add -A || exit $? ;\

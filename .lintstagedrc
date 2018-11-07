@@ -1,5 +1,5 @@
 {
-    "*.ts": [
+    "*.{ts,tsx}": [
         "make format",
         "make test",
         "make lint"

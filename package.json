@@ -54,7 +54,6 @@
         "react": ">=16.0.0"
     },
     "scripts": {
-        "precommit": "lint-staged",
         "storybook": "start-storybook -p 9001 -c .storybook",
         "storybook:build": "build-storybook -c .storybook -o build-storybook/"
     }
