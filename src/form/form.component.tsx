@@ -74,6 +74,9 @@ export class Form extends React.Component<FormProps, State> {
     public render() {
         const { children, handleSubmit, ...rest } = this.props;
 
+        // hack to avoid the compiler to remove the not used variable
+        if (handleSubmit) {}
+
         return (
             <FormContext.Provider value={this.state.value}>
                 <form {...rest} onSubmit={this.onSubmit}>
