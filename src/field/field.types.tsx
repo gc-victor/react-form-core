@@ -1,4 +1,4 @@
-import { SetValue, Values } from 'form';
+import { SetValue, Values } from '../form';
 
 export interface FieldProps {
     name: string;
