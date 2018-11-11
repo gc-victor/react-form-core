@@ -72,7 +72,7 @@ export class Form extends React.Component<FormProps, State> {
     }
 
     public render() {
-        const { children, ...rest } = this.props;
+        const { children, handleSubmit, ...rest } = this.props;
 
         return (
             <FormContext.Provider value={this.state.value}>
