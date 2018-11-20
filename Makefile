@@ -52,12 +52,15 @@ release :
 	([ $$? -eq 0 ] && echo "✓ Released $(VERSION)" || exit 1) ;\
 
 release-minor :
+	rm -rf dist || exit $? ;\
+	make test || exit $? ;\
 	make dist || exit $? ;\
 	npm version minor || exit $? ;\
 	make release || exit $? ;\
 	([ $$? -eq 0 ] && echo "✓ Released new minor $(VERSION)" || exit 1) ;\
 
 release-major :
+	rm -rf dist || exit $? ;\
 	make test || exit $? ;\
 	make dist || exit $? ;\
 	npm version major || exit $? ;\
