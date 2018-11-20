@@ -18,7 +18,7 @@ export class Form extends React.Component<FormProps, State> {
         };
     }
 
-    public deleteError = (name: string) => {
+    public deleteError = (name: string) => () => {
         const stateValue = this.state.value;
         const { errors } = stateValue;
         const newErrors = omit(errors, [name]);
@@ -35,7 +35,6 @@ export class Form extends React.Component<FormProps, State> {
         const stateValue = this.state.value;
         const { values } = stateValue;
 
-        this.deleteError(name);
         this.setState({
             value: {
                 ...stateValue,
@@ -44,7 +43,7 @@ export class Form extends React.Component<FormProps, State> {
                     [name]: value
                 }
             }
-        });
+        }, this.deleteError(name));
     }
 
     public setError = (name: string, error: any): void => {
