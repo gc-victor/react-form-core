@@ -38,6 +38,7 @@
         "jest": "23.6.0",
         "lint-staged": "8.0.4",
         "microbundle": "0.7.0",
+        "parcel": "1.10.3",
         "prettier": "1.15.1",
         "react": "16.6.1",
         "react-dom": "16.6.1",

@@ -2,6 +2,7 @@ BINDIR=node_modules/.bin
 JEST=$(BINDIR)/jest
 LINT_STAGED=$(BINDIR)/lint-staged
 MICROBUNDLE=$(BINDIR)/microbundle
+PARCEL=$(BINDIR)/parcel
 STORYBOOK_BUILD=$(BINDIR)/build-storybook
 STORYBOOK_START=$(BINDIR)/start-storybook
 TSLINT=$(BINDIR)/tslint
@@ -25,6 +26,11 @@ help :
 dist :
 	$(MICROBUNDLE) build --jsx --name react-from-core || exit $? ; \
 	([ $$? -eq 0 ] && echo "✓ Builded distribution files" || exit 1) ;\
+
+.PHONY: example
+example :
+	mkdir dir ;\
+	$(MICROBUNDLE) watch --jsx --name react-from-core | $(PARCEL) ./example/index.html --out-dir dist/example ;\
 
 format :
 	$(BINDIR)/prettier --write "src/**/*.ts" ;\
@@ -69,6 +75,9 @@ test :
 
 test-watch :
 	$(JEST) --watchAll ;\
+
+watch :
+	$(MICROBUNDLE) watch --jsx --name react-from-core ; \
 
 # catch anything and do nothing
 %:
