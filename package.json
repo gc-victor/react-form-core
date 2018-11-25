@@ -21,6 +21,9 @@
     "source": "index.ts",
     "typings": "dist/**/index.d.ts",
     "types": "dist/**/index.d.ts",
+    "files": [
+        "/dist"
+    ],
     "devDependencies": {
         "@storybook/addon-options": "4.0.4",
         "@storybook/cli": "4.0.4",
