@@ -29,7 +29,8 @@ dist :
 
 .PHONY: example
 example :
-	mkdir dir ;\
+	rm -rf dist || exit $? ;\
+	make dist || exit $? ;\
 	$(MICROBUNDLE) watch --jsx --name react-from-core | $(PARCEL) ./example/index.html --out-dir dist/example ;\
 
 format :
