@@ -22,7 +22,9 @@
     "typings": "dist/**/index.d.ts",
     "types": "dist/**/index.d.ts",
     "files": [
-        "/dist"
+        "/dist",
+        "/src",
+        "index.ts"
     ],
     "devDependencies": {
         "@storybook/addon-options": "4.0.4",
