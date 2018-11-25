@@ -32,32 +32,36 @@ export class Form extends React.Component<FormProps, State> {
     }
 
     public setValue = (name: string, value: any) => {
-        const stateValue = this.state.value;
-        const { values } = stateValue;
+        this.setState((state) => {
+            const stateValue = state.value;
+            const { values } = stateValue;
 
-        this.setState({
-            value: {
-                ...stateValue,
-                values: {
-                    ...values,
-                    [name]: value
+            return {
+                value: {
+                    ...stateValue,
+                    values: {
+                        ...values,
+                        [name]: value
+                    }
                 }
-            }
+            };
         }, this.deleteError(name));
     }
 
     public setError = (name: string, error: any): void => {
-        const stateValue = this.state.value;
-        const { errors } = stateValue;
+        this.setState((state) => {
+            const stateValue = state.value;
+            const { errors } = stateValue;
 
-        this.setState({
-            value: {
-                ...stateValue,
-                errors: {
-                    ...errors,
-                    [name]: error,
+            return {
+                value: {
+                    ...stateValue,
+                    errors: {
+                        ...errors,
+                        [name]: error,
+                    }
                 }
-            }
+            };
         });
     }
 
