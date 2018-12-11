@@ -217,14 +217,32 @@ test('consume async error', async () => {
     expect(instance.findByType('p').props.children).toEqual(errorMessage('Paco'));
 });
 
+class ErrorBoundary extends React.Component {
+    state = { hasError: false };
+
+    static getDerivedStateFromError() {
+        return { hasError: true };
+    }
+
+    render() {
+        if (this.state.hasError) {
+            return <p>Something went wrong</p>;
+        }
+
+        return this.props.children;
+    }
+}
+
 test('form field without name', () => {
-    expect(() =>
-        create(
-            <div>
-                <Input id={'firstName'} />
-            </div>
-        )
-    ).toThrow();
+    const instance = create(
+        <ErrorBoundary>
+            <Input id={'firstName'} />
+        </ErrorBoundary>
+    ).root;
+
+    const p = instance.findByType('p');
+
+    expect(p.props.children).toEqual('Something went wrong');
 });
 
 test('input text element', () => {
