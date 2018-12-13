@@ -27,7 +27,7 @@ function changeSelectMultiple(el: any, values: Array<object | undefined> = []) {
 }
 
 const errorMessage = (value: string) => `Error: ${value} isn't correct`;
-const validator = (value: any) => (value ? errorMessage(value) : '');
+const validator = (value: any) => (/error/i.test(value) ? errorMessage(value) : '');
 const asyncValidator = (value: string) => new Promise(resolve => resolve(errorMessage(value)));
 const Input = ({ name = '', ...rest }) => {
     return (
@@ -117,14 +117,14 @@ test('handle submitted errors', () => {
     const firstName = instance.find(el => el.type == 'input' && el.props.id == 'firstName');
     const lastName = instance.find(el => el.type == 'input' && el.props.id == 'lastName');
 
-    change(firstName, 'Paco');
-    change(lastName, 'García');
+    change(firstName, 'Paco Error');
+    change(lastName, 'García Error');
     submit(form);
 
     expect(count).toBe(1);
     expect(submittedErrors).toEqual({
-        firstName: errorMessage('Paco'),
-        lastName: errorMessage('García'),
+        firstName: errorMessage('Paco Error'),
+        lastName: errorMessage('García Error'),
     });
 });
 
@@ -192,9 +192,9 @@ test('consume errors', () => {
     ).root;
     const input = instance.findByType('input');
 
-    change(input, 'Paco');
+    change(input, 'Paco Error');
 
-    expect(instance.findByType('p').props.children).toEqual(errorMessage('Paco'));
+    expect(instance.findByType('p').props.children).toEqual(errorMessage('Paco Error'));
 });
 
 test('consume async error', async () => {

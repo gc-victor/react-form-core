@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Form, Field, ErrorMessage, FormConsumer } from '../dist';
 
-const validator = value => (value ? 'Error: Error Message!' : '');
+const validator = value => (/error/.test(value) ? 'Error: Error Message!' : '');
 const Input = ({ name = '', ...rest }) =>
     <Field name={name} {...rest}>
         <input {...rest} />

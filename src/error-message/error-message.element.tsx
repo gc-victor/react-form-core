@@ -16,13 +16,12 @@ export const ErrorMessage: React.SFC<ErrorMessageProps> = ({
 
                 ev.preventDefault();
 
-                if (typeof message === 'string') {
-                    setError(name, message);
-                } else {
+                message && typeof message === 'string' && setError(name, message);
+                message &&
+                    typeof message !== 'string' &&
                     message.then((value: string) => {
                         setError(name, value);
                     });
-                }
             };
 
             return React.cloneElement(children as React.ReactElement<any>, {
