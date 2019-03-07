@@ -1,0 +1,13 @@
+{
+  "globals": {
+    "react": {
+      "cdn": "https://unpkg.com/react@16/umd/react.development.js",
+      "window": "React"
+    },
+    "react-dom":  {
+      "cdn": "https://unpkg.com/react-dom@16/umd/react-dom.development.js",
+      "window": "ReactDOM"
+    }
+  },
+  "input": "example"
+}

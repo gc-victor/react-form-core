@@ -1,48 +1,40 @@
-BINDIR=node_modules/.bin
-JEST=$(BINDIR)/jest
-LINT_STAGED=$(BINDIR)/lint-staged
-MICROBUNDLE=$(BINDIR)/microbundle
-PARCEL=$(BINDIR)/parcel
-STORYBOOK_BUILD=$(BINDIR)/build-storybook
-STORYBOOK_START=$(BINDIR)/start-storybook
-TSLINT=$(BINDIR)/tslint
+.PHONY: coverage dist example
+.DEFAULT_GOAL := help
+ARG=$(filter-out $@,$(MAKECMDGOALS))
 VERSION=$(shell node -p -e 'require("./package.json").version')
 
-help :
-	@echo "Available commands:"
-	@echo ""
-	@echo "  make dist\t\tbuild distribution files"
-	@echo "  make format\t\tenforces a consistent style by parsing your code and re-printing it"
-	@echo "  make lint\t\tlinting utility"
-	@echo "  make lint-staged\trun linters against staged git files"
-	@echo "  make release-minor\trelease a new minor version"
-	@echo "  make release-major\trelease a new major version"
-	@echo "  make story\t\tstart storybook"
-	@echo "  make story-build\tbuild storybook"
-	@echo "  make test\t\texecute tests"
-	@echo "  make test-watch\texecute test and watch them"
-	@echo ""
+help: ## Show this help message
+	@echo 'usage: make [target] <type> <name>'
+	@echo
+	@echo 'Targets:'
+	@egrep '^(.+)\:\ ##\ (.+)' ${MAKEFILE_LIST} | column -t -c 2 -s ':#'
 
-.PHONY: dist
-dist :
+coverage :
+	if [ ! -d "./coverage" ]; then \
+		echo "You have to execute 'make test' or 'make test-watch'" ; \
+	else \
+		cd coverage ; \
+		python -m SimpleHTTPServer 8000 ; \
+	fi ;\
+
+dist : ## Build distribution files
 	rm -rf dist || exit $? ;\
-	$(MICROBUNDLE) build --jsx --name react-from-core || exit $? ; \
+	npx microbundle build --jsx --name reactFromCore || exit $? ; \
 	([ $$? -eq 0 ] && echo "✓ Builded distribution files" || exit 1) ;\
 
-.PHONY: example
 example :
 	make dist || exit $? ;\
-	$(MICROBUNDLE) watch --jsx --name react-from-core | $(PARCEL) ./example/index.html --out-dir dist/example ;\
+	npx @dev-pack/dev-pack start ;\
 
-format :
-	$(BINDIR)/prettier --write "src/**/*.ts" ;\
+format : ## Enforces a consistent style by parsing your code and re-printing it
+	npx prettier --write "src/**/*.ts" ;\
 
-lint :
-	$(TSLINT) --fix --config tslint.json --project tsconfig.json || exit $? ; \
+lint : ## Linting utility
+	npx tslint --fix --config tslint.json --project tsconfig.json || exit $? ; \
 	echo "✓ Lint passed" ;\
 
-lint-staged:
-	$(LINT_STAGED)
+lint-staged: ## Run linters against staged git files
+	npx lint-staged
 
 release :
 	git add -A || exit $? ;\
@@ -53,34 +45,34 @@ release :
 	npm publish || exit $? ;\
 	([ $$? -eq 0 ] && echo "✓ Released $(VERSION)" || exit 1) ;\
 
-release-minor :
+release-minor : ## Release a new minor version
 	make test || exit $? ;\
 	make dist || exit $? ;\
 	npm version minor || exit $? ;\
 	make release || exit $? ;\
 	([ $$? -eq 0 ] && echo "✓ Released new minor $(VERSION)" || exit 1) ;\
 
-release-major :
+release-major : ## Release a new major version
 	make test || exit $? ;\
 	make dist || exit $? ;\
 	npm version major || exit $? ;\
 	make release || exit $? ;\
 	([ $$? -eq 0 ] && echo "✓ Released new major $(VERSION)" || exit 1) ;\
 
-story :
-	${STORYBOOK_START} -p 9001 -c .storybook ;\
+storybook : ## Start storybook
+	npx start-storybook -p 9001 -c .storybook ;\
 
-story-build :
-	${STORYBOOK_BUILD} -c .storybook -o build-storybook/ ;\
+storybook-build : ## Build storybook
+	npx build-storybook -c .storybook -o build-storybook/ ;\
 
-test :
-	$(JEST) ;\
+test : ## Execute tests
+	npx jest ;\
 
-test-watch :
-	$(JEST) --watchAll ;\
+test-watch : ## Execute test and watch
+	npx jest --watchAll ;\
 
-watch :
-	$(MICROBUNDLE) watch --jsx --name react-from-core ; \
+watch : ## Execute dist and watch
+	npx microbundle watch --jsx --name react-from-core ; \
 
 # catch anything and do nothing
 %:

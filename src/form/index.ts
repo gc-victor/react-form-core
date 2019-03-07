@@ -1,13 +1,4 @@
-export { Form } from './form.component';
-export { FormConsumer } from './form.consumer';
-export { FormContext } from './form.context';
-export {
-    Errors,
-    FormChildren,
-    FormChildrenProps,
-    FormProps,
-    SetError,
-    SetValue,
-    State,
-    Values,
-} from './form.types';
+export * from './form';
+export * from './form.consumer';
+export * from './form.context';
+export * from './form.types';

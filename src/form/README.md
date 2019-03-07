@@ -4,14 +4,15 @@ Component to manage form actions and events. It has the responsibility of handle
 
 ## Props
 
-- handleSubmit: is used as a replacement of the onSubmit attribute. It will receive the properties ev (event), errors and values.
+- onSubmit: will receive the properties ev (event), errors and values.
 - wait: milliseconds to wait to validate the value, by default is 750ms 
 
 ## FormConsumer
 
 - errors: object of errors in the whole form
-- setError: set errors to get them using errors
-- setValue: set value to get them using values
+- setError: set error of the field is exist
+- setSuccess: set success of the field is exist
+- successes: object of successes in the whole form
 - values: object of values of the whole form
 
 ## Usage
@@ -35,6 +36,7 @@ Component to manage form actions and events. It has the responsibility of handle
         <Input
             id={'firstName'}
             name={'firstName'}
+            value={'Paco'}
         />
     </ErrorMessage>
     <Submit>Submit</Submit>
@@ -55,14 +57,14 @@ Component to manage form actions and events. It has the responsibility of handle
 </Form>
 ```
 
-##### Set Errors and Values
+##### Set Errors and successes
 
 ```
 <Form>
     <FormConsumer>
-        {({ setError, setValues }) =>
-            setValues('firstName', 'No name');
+        {({ setError, setSuccess }) =>
             setError('firstName', 'Error message!');
+            setSuccess('firstName', 'Well done!');
         }
     </FormConsumer>
 </Form>
