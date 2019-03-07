@@ -12,19 +12,31 @@ You can use npm or yarn to install it.
 
 ## Components
 
-### Error Message
+### Validator
 
 Validate form fields and, if needed, adds an error message. 
 
 ```
-import { Form, ErrorMessage } from 'react-form-core';
+import { Form, Validator } from 'react-form-core';
 import { Input } from './components/input';
 import { Submit } from './components/submit';
 
 <Form>
-    <ErrorMessage name={'firstName'} validator={value => value ? 'Error: is truthy!' : ''}>
+    <Validator name={'firstName'} validation={({ value, setError }) => value && setError('Error: is truthy!')}>
         <Input name={'firstName'} />
-    </ErrorMessage>
+    </Validator>
+    <FormConsumer>
+        {({ errors }) => {
+            const errorMessage = errors && errors.firstName;
+
+            return (
+                errorMessage &&
+                <p>
+                    {errorMessage}
+                </p>
+            );
+        }}
+    </FormConsumer>;
     <Submit>Submit</Submit>
 </Form>
 ```
