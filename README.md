@@ -41,7 +41,7 @@ import { Submit } from './components/submit';
 </Form>
 ```
 
-[More about the error message component.](./src/error-message/README.md)
+[More about the validator component.](./src/validator/README.md)
 
 ### Field
 
