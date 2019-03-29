@@ -17,13 +17,14 @@ class FieldChildrenWrapper extends React.Component<FieldPropsChildren> {
     }
 
     public componentDidMount() {
-        const { name, setInitialValue } = this.props;
+        const { name, setInitialValue, setValue } = this.props;
         const children = this.props.children as React.ReactElement<any>;
         const childrenProps = children ? children.props : {};
         const checkedValue = childrenProps.checked ? childrenProps.value : '';
         const value = this.hasCheckedAttr ? checkedValue : childrenProps.value;
 
-        value && setInitialValue(name, value);
+        value !== '' && setInitialValue(name, value);
+        value !== '' && setValue(name, value);
     }
 
     public changed = (ev: React.ChangeEvent<any>) => {
