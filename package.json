@@ -1,7 +1,7 @@
 {
     "name": "react-form-core",
     "description": "React Form Core is an utility to create your own form elements components",
-    "version": "3.2.0",
+    "version": "4.0.0",
     "author": "Víctor García",
     "license": "MIT",
     "repository": {
