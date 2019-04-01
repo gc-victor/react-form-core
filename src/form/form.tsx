@@ -104,7 +104,6 @@ export class Form extends React.Component<FormProps, State> {
     public onSubmit = (ev: React.FormEvent<HTMLFormElement>) => {
         const { onSubmit } = this.props;
         const stateValue = this.state.value;
-        const { errors, initialValues, successes, values } = stateValue;
 
         ev.preventDefault();
 
@@ -115,7 +114,7 @@ export class Form extends React.Component<FormProps, State> {
             },
         });
 
-        onSubmit && onSubmit({ ev, errors, initialValues, successes, values } as any);
+        onSubmit && onSubmit({ ev, ...stateValue } as any);
     }
 
     public onReset = (ev: React.FormEvent<HTMLFormElement>) => {
