@@ -103,38 +103,39 @@ export class Form extends React.Component<FormProps, State> {
 
     public onSubmit = (ev: React.FormEvent<HTMLFormElement>) => {
         const { onSubmit } = this.props;
-        const stateValue = this.state.value;
 
         ev.preventDefault();
 
-        this.setState({
-            value: {
-                ...stateValue,
-                submitted: true,
-            },
-        });
+        this.setState(state => {
+            onSubmit && onSubmit({ ev, ...state.value } as any);
 
-        onSubmit && onSubmit({ ev, ...stateValue } as any);
+            return {
+                value: {
+                    ...state.value,
+                    submitted: true,
+                }
+            };
+        });
     }
 
     public onReset = (ev: React.FormEvent<HTMLFormElement>) => {
         const { onReset } = this.props;
-        const stateValue = this.state.value;
-        const { errors, initialValues, successes, values } = stateValue;
 
         ev.preventDefault();
 
-        this.setState({
-            value: {
-                ...stateValue,
-                errors: {},
-                submitted: false,
-                successes: {},
-                values: stateValue.initialValues,
-            },
-        });
+        this.setState(state => {
+            const stateValue = state.value;
 
-        onReset && onReset({ ev, errors, initialValues, successes, values } as any);
+            return {
+                value: {
+                    ...stateValue,
+                    errors: {},
+                    submitted: false,
+                    successes: {},
+                    values: stateValue.initialValues,
+                }
+            };
+        }, () => onReset && onReset({ ev, ...this.state.value } as any));
     }
 
     public render() {

@@ -89,6 +89,51 @@ test('handle submitted values', () => {
     expect(submittedValues).toEqual({ firstName: 'Paco' });
 });
 
+test('should be set the submitted value in the first submit', () => {
+    let submittedValue;
+    let count = 0;
+
+    const onSubmit = ({ submitted }: any) => {
+        submittedValue = submitted;
+        count = ++count;
+    };
+    const instance = create(
+        <div>
+            <Form id={'form'} onSubmit={onSubmit} />
+        </div>
+    ).root;
+
+    const form = instance.findByType('form');
+
+    submit(form);
+
+    expect(count).toBe(1);
+    expect(submittedValue).toEqual(false);
+});
+
+test('should be set the submitted value in the first submit', () => {
+    let submittedValue;
+    let count = 0;
+
+    const onSubmit = ({ submitted }: any) => {
+        submittedValue = submitted;
+        count = ++count;
+    };
+    const instance = create(
+        <div>
+            <Form id={'form'} onSubmit={onSubmit} />
+        </div>
+    ).root;
+
+    const form = instance.findByType('form');
+
+    submit(form);
+    submit(form);
+
+    expect(count).toBe(2);
+    expect(submittedValue).toEqual(true);
+});
+
 test('handle submitted successes', () => {
     let submittedSuccesses: any;
     let count = 0;
