@@ -27,6 +27,12 @@ class FieldChildrenWrapper extends React.Component<FieldPropsChildren> {
         value !== '' && setValue(name, value);
     }
 
+    public componentWillUnmount(): void {
+        const { name, setValue } = this.props;
+
+        setValue(name, '');
+    }
+
     public changed = (ev: React.ChangeEvent<any>) => {
         const { name, onChange, setValue } = this.props;
         const target = ev.target;
