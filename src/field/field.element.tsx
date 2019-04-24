@@ -61,7 +61,7 @@ class FieldChildrenWrapper extends React.Component<FieldPropsChildren> {
         const noneValue = element.props.multiple ? [''] : '';
         const valueAttr = this.hasCheckedAttr
             ? { checked: value === this.props.value }
-            : { value: value || noneValue };
+            : { value: value !== '' ? value : noneValue };
 
         if (checked && setInitialValue && setValue && values) {
         }

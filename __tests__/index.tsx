@@ -584,48 +584,71 @@ test('checkbox element', () => {
     const instance = create(
         <div>
             <Form id={'form'}>
-                <Input id={'firstName'} name={'firstName'} type={'checkbox'} value={'Paco'} />
-                <Input id={'lastName'} name={'lastName'} type={'checkbox'} value={'García'} />
+                <Input id={'firstName'} name={'firstName'} type={'checkbox'} />
+                <Input id={'lastName'} name={'lastName'} type={'checkbox'} />
                 <FormConsumer>
                     {({ values }) =>
                         <p>
-                            My name is {values && values.firstName}
+                            Checked {values && values.firstName}
                         </p>}
                 </FormConsumer>
             </Form>
         </div>
     ).root;
-    const radios = instance.findAllByType('input');
-    const paco = radios[0];
+    const checkbox = instance.findAllByType('input');
+    const paco = checkbox[0];
 
-    change(paco, paco.props.value, paco.props.type, true);
+    change(paco, true, paco.props.type, true);
 
-    expect(instance.findByType('p').props.children.join('')).toEqual('My name is Paco');
+    expect(instance.findByType('p').props.children.join('')).toEqual('Checked true');
+});
+
+
+test('default checked checkbox element', () => {
+    const instance = create(
+        <div>
+            <Form id={'form'}>
+                <Input
+                    id={'zero'}
+                    name={'zero'}
+                    type={'number'}
+                    value={0}
+                />
+                <FormConsumer>
+                    {({ values }) =>
+                        <p>
+                            Value {values && values.zero}
+                        </p>}
+                </FormConsumer>
+            </Form>
+        </div>
+    ).root;
+
+    expect(instance.findByType('p').props.children.join('')).toEqual('Value 0');
 });
 
 test('default checked checkbox element', () => {
     const instance = create(
         <div>
             <Form id={'form'}>
-                <Input id={'firstName'} name={'firstName'} type={'checkbox'} value={'Paco'} />
                 <Input
                     id={'firstName'}
                     checked={true}
                     name={'firstName'}
                     type={'checkbox'}
-                    value={'Paca'}
+                    value={true}
                 />
                 <FormConsumer>
                     {({ values }) =>
                         <p>
-                            My name is {values && values.firstName}
+                            Checked {values && values.firstName}
                         </p>}
                 </FormConsumer>
             </Form>
         </div>
     ).root;
 
-    expect(instance.findByType('p').props.children.join('')).toEqual('My name is Paca');
+    expect(instance.findByType('p').props.children.join('')).toEqual('Checked true');
 });
 
 test('select element', () => {
