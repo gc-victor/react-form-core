@@ -22,22 +22,33 @@ export interface Errors {
 export interface Successes {
     [key: string]: string;
 }
-export type HandleSubmit = (
+export type OnSubmit = (
     {
         ev,
         errors,
+        initialValues,
+        setError,
+        setInitialValue,
+        setSuccess,
+        setValue,
+        submitted,
         successes,
         values,
     }: {
         ev: FormEvent<HTMLFormElement>;
         errors: Errors;
+        initialValues: Values;
+        setError: SetError;
+        setInitialValue: SetInitialValue;
+        setSuccess: SetSuccess;
+        setValue: SetValue;
+        submitted: boolean;
         successes: Successes;
         values: Values;
     }
 ) => void;
 export type State = Readonly<typeof initialState>;
 export interface FormProps extends FormHTMLAttributes<HTMLFormElement> {
-    handleSubmit?: HandleSubmit;
     wait?: number;
 }
 export type SetInitialValue = (name: string, value: string) => void;
