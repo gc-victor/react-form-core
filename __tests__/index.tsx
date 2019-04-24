@@ -10,7 +10,7 @@ import { Validation } from '../src/validator/validator.types';
 jest.spyOn(utils, 'debounce').mockImplementation(fn => fn);
 
 function submit(el: any) {
-    el.props.onSubmit({ preventDefault: () => {} });
+    el.props.onSubmit({ preventDefault: () => {}, persist: () => {} });
 }
 
 function change(el: any, value: any, type = 'text', checked = false) {
@@ -249,7 +249,7 @@ test('handle reset values', () => {
         lastName: 'Pérez',
     });
 
-    form.props.onReset({ preventDefault: () => {} });
+    form.props.onReset({ preventDefault: () => {}, persist: () => {} });
 
     expect(count).toBe(1);
     expect({

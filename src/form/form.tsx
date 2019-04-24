@@ -105,8 +105,10 @@ export class Form extends React.Component<FormProps, State> {
         const { onSubmit } = this.props;
 
         ev.preventDefault();
+        ev.persist();
 
         this.setState(state => {
+
             onSubmit && onSubmit({ ev, ...state.value } as any);
 
             return {
@@ -122,6 +124,7 @@ export class Form extends React.Component<FormProps, State> {
         const { onReset } = this.props;
 
         ev.preventDefault();
+        ev.persist();
 
         this.setState(state => {
             const stateValue = state.value;
