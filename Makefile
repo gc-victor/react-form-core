@@ -19,22 +19,19 @@ coverage :
 
 dist : ## Build distribution files
 	rm -rf dist || exit $? ;\
-	npx microbundle build --jsx --name reactFromCore || exit $? ; \
-	([ $$? -eq 0 ] && echo "✓ Builded distribution files" || exit 1) ;\
+	npx tsdx build || exit $? ; \
 
 example :
-	make dist || exit $? ;\
 	npx @dev-pack/dev-pack start ;\
 
 format : ## Enforces a consistent style by parsing your code and re-printing it
 	npx prettier --write "src/**/*.ts" ;\
 
 lint : ## Linting utility
-	npx tslint --fix --config tslint.json --project tsconfig.json || exit $? ; \
-	echo "✓ Lint passed" ;\
+	npx eslint --fix ./src/**/*.ts* || exit $? ; \
 
 lint-staged: ## Run linters against staged git files
-	npx lint-staged
+	make dist && npx lint-staged
 
 release :
 	git add -A || exit $? ;\
@@ -72,7 +69,7 @@ test-watch : ## Execute test and watch
 	npx jest --watchAll ;\
 
 watch : ## Execute dist and watch
-	npx microbundle watch --jsx --name react-from-core ; \
+	npx tsdx watch ; \
 
 # catch anything and do nothing
 %:

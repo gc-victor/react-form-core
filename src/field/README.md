@@ -4,7 +4,7 @@ Field element is a wrapper for your form fields elements. It is in charge of set
 
 ## Props
 
-- name: the same name as the needed for the child form field element
+-   name: the same name as the needed for the child form field element
 
 ## Usage
 

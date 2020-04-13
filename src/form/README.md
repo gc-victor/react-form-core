@@ -1,19 +1,19 @@
 # Form
 
-Component to manage form actions and events. It has the responsibility of handle his children values and errors. 
+Component to manage form actions and events. It has the responsibility of on his children values and errors.
 
 ## Props
 
-- onSubmit: will receive the properties ev (event), errors and values.
-- wait: milliseconds to wait to validate the value, by default is 750ms 
+-   onSubmit: will receive the properties ev (event), errors and values.
+-   wait: milliseconds to wait to validate the value, by default is 750ms
 
 ## FormConsumer
 
-- errors: object of errors in the whole form
-- setError: set error of the field is exist
-- setSuccess: set success of the field is exist
-- successes: object of successes in the whole form
-- values: object of values of the whole form
+-   errors: object of errors in the whole form
+-   setError: set error of the field is exist
+-   setSuccess: set success of the field is exist
+-   successes: object of successes in the whole form
+-   values: object of values of the whole form
 
 ## Usage
 
@@ -22,7 +22,7 @@ Component to manage form actions and events. It has the responsibility of handle
 #### Handle Submit
 
 ```
-<Form handleSubmit={({ ev, errors, values }) => {}}>
+<Form onSubmit={({ ev, errors, values }) => {}}>
     <Input label={'First name'} name={'firstName'} />
     <Submit>Submit</Submit>
 </Form>
@@ -84,5 +84,5 @@ Component to manage form actions and events. It has the responsibility of handle
 
 ## References
 
-- [Form with the new React Context API](https://medium.com/@ippei.tanaka/form-with-the-new-react-context-api-12e3ba601b3d)
-- [React form example with context](https://github.com/ippei-tanaka/react-form-example-with-context)
+-   [Form with the new React Context API](https://medium.com/@ippei.tanaka/form-with-the-new-react-context-api-12e3ba601b3d)
+-   [React form example with context](https://github.com/ippei-tanaka/react-form-example-with-context)

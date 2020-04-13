@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import * as React from 'react';
 import { FormChildrenProps, initialState } from './form.types';
 
-export const FormContext = createContext<FormChildrenProps>(initialState.value);
+export const FormContext = React.createContext<FormChildrenProps>(initialState.value);

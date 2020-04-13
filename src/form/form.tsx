@@ -1,155 +1,143 @@
 import * as React from 'react';
-import { FormProps, State } from './form.types';
+import { FormProps } from './form.types';
 import { FormContext } from './form.context';
 import { debounce, omit } from '../utils';
 
-export class Form extends React.Component<FormProps, State> {
-    constructor(props: FormProps) {
-        super(props);
+export const Form = ({ children, onReset, onSubmit, wait, ...rest }: FormProps) => {
+    const [state, setState] = React.useState({
+        errors: {},
+        ev: false as any,
+        initialValues: {},
+        resetted: false,
+        submitted: false,
+        successes: {},
+        values: {},
+        setError: debounce(handleError, !wait ? 750 : wait),
+        setInitialValue: handleInitialValue,
+        setSuccess: debounce(handleSuccess, !wait ? 750 : wait),
+        setValue: handleValue
+    });
 
-        this.setError = debounce(this.setError, props.wait === undefined ? 750 : props.wait);
-        this.setSuccess = debounce(this.setSuccess, props.wait === undefined ? 750 : props.wait);
-        this.state = {
-            value: {
-                errors: {},
-                initialValues: {},
-                setError: this.setError,
-                setInitialValue: this.setInitialValue,
-                setSuccess: this.setSuccess,
-                setValue: this.setValue,
+    React.useEffect(() => {
+        const submitted = state.submitted;
+
+        if (submitted && onSubmit) {
+            onSubmit({ ...state } as any);
+
+            setState((prevState) => {
+                return {
+                    ...prevState,
+                    submitted: false
+                };
+            });
+        }
+    }, [onSubmit, state]);
+
+    React.useEffect(() => {
+        const resetted = state.resetted;
+        const formEvent = state.ev;
+
+        if (formEvent && resetted && onReset) {
+            onReset({ ev: formEvent, ...state } as any);
+
+            setState((prevState) => {
+                return {
+                    ...prevState,
+                    resetted: false
+                };
+            });
+        }
+    }, [onReset, state]);
+
+    function handleInitialValue(name: string, initialValue: any) {
+        setState((prevState) => {
+            return {
+                ...prevState,
+                initialValues: {
+                    ...prevState.initialValues,
+                    [name]: initialValue
+                },
+                values: {
+                    ...prevState.values,
+                    [name]: initialValue
+                }
+            };
+        });
+    }
+
+    function handleValue(name: string, newValue: any) {
+        setState((prevState) => {
+            return {
+                ...prevState,
+                errors: omit(prevState.errors, [name]),
                 submitted: false,
+                successes: omit(state.successes, [name]),
+                values: {
+                    ...prevState.values,
+                    [name]: newValue
+                }
+            };
+        });
+    }
+
+    function handleError(name: string, error: any) {
+        setState((prevState) => {
+            return {
+                ...prevState,
+                errors: {
+                    ...prevState.errors,
+                    [name]: error
+                }
+            };
+        });
+    }
+
+    function handleSuccess(name: string, success: any) {
+        setState((prevState) => {
+            return {
+                ...prevState,
+                successes: {
+                    ...prevState.successes,
+                    [name]: success
+                }
+            };
+        });
+    }
+
+    function handleSubmit(ev: React.FormEvent<HTMLFormElement>) {
+        ev.preventDefault();
+        ev.persist();
+
+        setState((prevState) => {
+            return {
+                ...prevState,
+                ev,
+                submitted: true
+            };
+        });
+    }
+
+    function handleReset(ev: React.FormEvent<HTMLFormElement>) {
+        ev.preventDefault();
+        ev.persist();
+
+        setState((prevState) => {
+            return {
+                ...prevState,
+                errors: {},
+                ev,
+                resetted: true,
                 successes: {},
-                values: {},
-            },
-        };
-    }
-
-    public setInitialValue = (name: string, value: any) => {
-        this.setState(state => {
-            const stateValue = state.value;
-            const { initialValues, values } = stateValue;
-
-            return {
-                value: {
-                    ...stateValue,
-                    initialValues: {
-                        ...initialValues,
-                        [name]: value,
-                    },
-                    values: {
-                        ...values,
-                        [name]: value,
-                    },
-                },
+                values: prevState.initialValues
             };
         });
     }
 
-    public setValue = (name: string, value: any) => {
-        this.setState(state => {
-            const stateValue = state.value;
-            const { errors, successes, values } = stateValue;
-            const newErrors = omit(errors, [name]);
-            const newSuccesses = omit(successes, [name]);
-
-            return {
-                value: {
-                    ...stateValue,
-                    errors: newErrors,
-                    submitted: false,
-                    successes: newSuccesses,
-                    values: {
-                        ...values,
-                        [name]: value,
-                    },
-                },
-            };
-        });
-    }
-
-    public setError = (name: string, error: any): void => {
-        this.setState(state => {
-            const stateValue = state.value;
-            const { errors } = stateValue;
-
-            return {
-                value: {
-                    ...stateValue,
-                    errors: {
-                        ...errors,
-                        [name]: error,
-                    },
-                },
-            };
-        });
-    }
-
-    public setSuccess = (name: string, success: any): void => {
-        this.setState(state => {
-            const stateValue = state.value;
-            const { successes } = stateValue;
-
-            return {
-                value: {
-                    ...stateValue,
-                    successes: {
-                        ...successes,
-                        [name]: success,
-                    },
-                },
-            };
-        });
-    }
-
-    public onSubmit = (ev: React.FormEvent<HTMLFormElement>) => {
-        const { onSubmit } = this.props;
-
-        ev.preventDefault();
-        ev.persist();
-
-        this.setState(state => {
-
-            onSubmit && onSubmit({ ev, ...state.value } as any);
-
-            return {
-                value: {
-                    ...state.value,
-                    submitted: true,
-                }
-            };
-        });
-    }
-
-    public onReset = (ev: React.FormEvent<HTMLFormElement>) => {
-        const { onReset } = this.props;
-
-        ev.preventDefault();
-        ev.persist();
-
-        this.setState(state => {
-            const stateValue = state.value;
-
-            return {
-                value: {
-                    ...stateValue,
-                    errors: {},
-                    submitted: false,
-                    successes: {},
-                    values: stateValue.initialValues,
-                }
-            };
-        }, () => onReset && onReset({ ev, ...this.state.value } as any));
-    }
-
-    public render() {
-        const { children, ...rest } = this.props;
-
-        return (
-            <FormContext.Provider value={this.state.value}>
-                <form {...rest} onSubmit={this.onSubmit} onReset={this.onReset}>
-                    {children}
-                </form>
-            </FormContext.Provider>
-        );
-    }
-}
+    return (
+        <FormContext.Provider value={state}>
+            <form {...rest} onSubmit={handleSubmit} onReset={handleReset}>
+                {children}
+            </form>
+        </FormContext.Provider>
+    );
+};

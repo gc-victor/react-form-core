@@ -48,7 +48,7 @@ class Example extends React.Component {
                                     <Text id={'input'} name={'input'} value={'test'} />
                                 </Validator>
                                 <span className={'block text-grey pt-1 text-sm'}>
-                                    Type error or success to show each or both messages
+                                    Type error or success (+ space) to show each or both messages
                                 </span>
                             </span>
                         </label>
@@ -127,17 +127,19 @@ class Example extends React.Component {
                     <FormConsumer key={'warning'}>
                         {({ submitted, values }) => {
                             return (
-                                submitted &&
-                                <React.Fragment>
-                                    {values.radio !== '2' &&
-                                        <p
-                                            className={
-                                                'bg-yellow-lightest text-yellow-darker p-2 mt-2'
-                                            }
-                                        >
-                                            Warning: Radio should be 2
-                                        </p>}
-                                </React.Fragment>
+                                submitted && (
+                                    <React.Fragment>
+                                        {values.radio !== '2' && (
+                                            <p
+                                                className={
+                                                    'bg-yellow-lightest text-yellow-darker p-2 mt-2'
+                                                }
+                                            >
+                                                Warning: Radio should be 2
+                                            </p>
+                                        )}
+                                    </React.Fragment>
+                                )
                             );
                         }}
                     </FormConsumer>

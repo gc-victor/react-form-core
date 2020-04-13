@@ -1,31 +1,30 @@
 import * as React from 'react';
-import { FormChildrenProps, FormConsumer } from '../form';
+import { FormContext } from '../form';
 import { ValidatorProps } from './validator.types';
 
-export const Validator = ({ children, validation, name, ...rest }: ValidatorProps) =>
-    <FormConsumer>
-        {({ errors, setError, setSuccess, successes, values }: FormChildrenProps) => {
-            const getMessage = (onChange?: (ev: React.ChangeEvent<HTMLFormElement>) => any) => (
-                ev: React.ChangeEvent<HTMLFormElement>
-            ) => {
-                ev.preventDefault();
+export const Validator = ({ children, validation, name, ...rest }: ValidatorProps) => {
+    const { errors, setError, setSuccess, successes, values } = React.useContext(FormContext);
 
-                validation({
-                    errors,
-                    setError: error => setError(name, error),
-                    setSuccess: success => setSuccess(name, success),
-                    successes,
-                    value: ev.target.value,
-                    values,
-                });
+    const getMessage = (onChange?: (ev: React.ChangeEvent<HTMLFormElement>) => any) => {
+        return (ev: React.ChangeEvent<HTMLFormElement>) => {
+            ev.preventDefault();
 
-                onChange && onChange(ev);
-            };
-            const element = children as React.ReactElement<any>;
-
-            return React.cloneElement(element, {
-                ...rest,
-                onChange: getMessage(element && element.props && element.props.onChange),
+            validation({
+                errors,
+                setError: (error) => {return setError(name, error); },
+                setSuccess: (success) => {return setSuccess(name, success); },
+                successes,
+                value: ev.target.value,
+                values
             });
-        }}
-    </FormConsumer>;
+
+            onChange && onChange(ev);
+        };
+    };
+    const element = children as React.ReactElement;
+
+    return React.cloneElement(element, {
+        ...rest,
+        onChange: getMessage(element?.props?.onChange)
+    });
+};

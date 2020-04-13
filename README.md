@@ -127,7 +127,7 @@ We are following *AngularJS Git Commit Message Conventions*. This leads to more 
 Pull requests are the greatest contributions, so be sure they are focused in scope and do avoid unrelated commits.
 
 -   Fork it!
--   Clone your fork: `git clone http://git.trivago.trv/<your-username>/react-form-core`
+-   Clone your fork: `git clone http://github.com/<your-username>/react-form-core`
 -   Navigate to the newly cloned directory: `cd react-form-core`
 -   Create a new branch for the new feature: `git checkout -b my-new-feature`
 -   Install the tools necessary for development: `npm install`

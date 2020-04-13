@@ -4,14 +4,14 @@ Validate form fields and, if needed, adds an error message.
 
 ## Props
 
-- name: the same name as the child form field element
-- validation: A function who validates the form field value. You can set the value as an error or a success.
-    - errors: object of errors in the whole form
-    - setError: set errors to get them using errors
-    - setSuccess: set successes to get them using successes
-    - successes: object of successes in the whole form
-    - value: field value
-    - values: object of values of the whole form
+-   name: the same name as the child form field element
+-   validation: A function who validates the form field value. You can set the value as an error or a success.
+    -   errors: object of errors in the whole form
+    -   setError: set errors to get them using errors
+    -   setSuccess: set successes to get them using successes
+    -   successes: object of successes in the whole form
+    -   value: field value
+    -   values: object of values of the whole form
 
 ## Usage
 
