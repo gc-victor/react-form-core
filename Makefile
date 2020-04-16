@@ -11,7 +11,7 @@ help: ## Show this help message
 
 coverage :
 	if [ ! -d "./coverage" ]; then \
-		echo "You have to execute 'make test' or 'make test-watch'" ; \
+		echo "You have to execute first 'make test-coverage'" ; \
 	else \
 		cd coverage ; \
 		python -m SimpleHTTPServer 8000 ; \
@@ -31,7 +31,8 @@ lint : ## Linting utility
 	npx eslint --fix ./src/**/*.ts* || exit $? ; \
 
 lint-staged: ## Run linters against staged git files
-	make dist && npx lint-staged
+	make dist || exit $? ; \
+	npx lint-staged || exit $? ; \
 
 release :
 	git add -A || exit $? ;\
@@ -42,11 +43,27 @@ release :
 	npm publish || exit $? ;\
 	([ $$? -eq 0 ] && echo "✓ Released $(VERSION)" || exit 1) ;\
 
+release-beta :
+	git add -A || exit $? ;\
+	git commit -m 'release: $(VERSION)' || exit $? ;\
+	git push origin master || exit $? ;\
+	git tag $(VERSION) || exit $? ;\
+	git push --tags || exit $? ;\
+	npm publish --tag beta || exit $? ;\
+	([ $$? -eq 0 ] && echo "✓ Released $(VERSION)" || exit 1) ;\
+
 release-minor : ## Release a new minor version
 	make test || exit $? ;\
 	make dist || exit $? ;\
 	npm version minor || exit $? ;\
 	make release || exit $? ;\
+	([ $$? -eq 0 ] && echo "✓ Released new minor $(VERSION)" || exit 1) ;\
+
+release-minor-beta : ## Release a new minor beta version
+	make test || exit $? ;\
+	make dist || exit $? ;\
+	npm version minor || exit $? ;\
+	make release-beta || exit $? ;\
 	([ $$? -eq 0 ] && echo "✓ Released new minor $(VERSION)" || exit 1) ;\
 
 release-major : ## Release a new major version
@@ -56,17 +73,25 @@ release-major : ## Release a new major version
 	make release || exit $? ;\
 	([ $$? -eq 0 ] && echo "✓ Released new major $(VERSION)" || exit 1) ;\
 
-storybook : ## Start storybook
-	npx start-storybook -p 9001 -c .storybook ;\
-
-storybook-build : ## Build storybook
-	npx build-storybook -c .storybook -o build-storybook/ ;\
+release-major-beta : ## Release a new major beta version
+	make test || exit $? ;\
+	make dist || exit $? ;\
+	npm version major || exit $? ;\
+	make release-beta || exit $? ;\
+	([ $$? -eq 0 ] && echo "✓ Released new major $(VERSION)" || exit 1) ;\
 
 test : ## Execute tests
-	npx jest ;\
+	npx jest || exit $? ;\
 
 test-watch : ## Execute test and watch
 	npx jest --watchAll ;\
+
+test-watch-coverage : ## Execute test coverage and watch
+	npx jest --watchAll --coverage=true ;\
+
+test-coverage : ## Execute test coverage
+	npx jest --coverage=true || exit $? ;\
+	make coverage || exit $? ;\
 
 watch : ## Execute dist and watch
 	npx tsdx watch ; \

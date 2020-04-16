@@ -1,61 +1,24 @@
 import * as React from 'react';
-import { act, create } from 'react-test-renderer';
-import * as utils from '../src/utils';
-import { Field, Form, FormContext, Validation, Validator, withValidation } from '../src';
-
-// @see: https://github.com/facebook/jest/issues/3465#issuecomment-398738112
-jest.spyOn(utils, 'debounce').mockImplementation((fn) => fn);
-
-function submit(el: any) {
-    el.props.onSubmit({ preventDefault: () => {}, persist: () => {} });
-}
-
-function reset(el: any) {
-    el.props.onReset({ preventDefault: () => {}, persist: () => {} });
-}
-
-function change(el: any, value: any, type = 'text', checked = false) {
-    el.props.onChange({
-        persist: () => {},
-        preventDefault: () => {},
-        target: { checked, selectedOptions: value, type, value },
-    });
-}
-
-function changeSelectMultiple(el: any, values: Array<object | undefined> = []) {
-    el.props.onChange({
-        persist: () => {},
-        preventDefault: () => {},
-        target: { type: 'select-multiple', selectedOptions: values },
-    });
-}
+import { fireEvent, render } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { Form, FormContext, Validation, withValidation } from '../src';
 
 const errorMessage = (value: string) => `Error: ${value} isn't correct`;
 const validation = ({ value, setError }: Validation) =>
     /error/i.test(value) && setError(errorMessage(value));
 
-const Input = ({ name = '', ...rest }) => {
-    return (
-        <Field name={name} {...rest}>
-            <input {...rest} />
-        </Field>
-    );
+const Input = ({ ...rest }: any) => {
+    return <input {...rest} />;
 };
-const Textarea = ({ name = '', ...rest }) => {
-    return (
-        <Field name={name} {...rest}>
-            <textarea {...rest} />
-        </Field>
-    );
+const Textarea = ({ ...rest }) => {
+    return <textarea {...rest} />;
 };
-const Select = ({ name = '', ...rest }) => {
+const Select = ({ ...rest }) => {
     return (
-        <Field name={name} {...rest}>
-            <select {...rest}>
-                <option value={'Paco'}>Paco</option>
-                <option value={'Paca'}>Paca</option>
-            </select>
-        </Field>
+        <select {...rest}>
+            <option value={'Paco'}>Paco</option>
+            <option value={'Paca'}>Paca</option>
+        </select>
     );
 };
 
@@ -67,22 +30,23 @@ test('should handle submitted values', () => {
         submittedValues = values;
         count = ++count;
     };
-    const instance = create(
+
+    render(
         <Form id={'form'} onSubmit={onSubmit}>
             <Input id={'firstName'} name={'firstName'} />
         </Form>
-    ).root;
+    );
 
-    const form = instance.findByType('form');
-    const input = instance.findByType('input');
+    const form = document.getElementById('form');
+    const input = document.getElementById('firstName');
 
-    act(() => {
-        change(input, 'Paco');
+    fireEvent.change(input as HTMLInputElement, {
+        target: {
+            value: 'Paco',
+        },
     });
 
-    act(() => {
-        submit(form);
-    });
+    fireEvent.submit(form as HTMLFormElement);
 
     expect(count).toBe(1);
     expect(submittedValues).toEqual({ firstName: 'Paco' });
@@ -96,17 +60,12 @@ test('should set the submitted value to true after in the first submit', () => {
         submittedValue = submitted;
         count = ++count;
     };
-    const instance = create(
-        <div>
-            <Form id={'form'} onSubmit={onSubmit} />
-        </div>
-    ).root;
 
-    const form = instance.findByType('form');
+    render(<Form id={'form'} onSubmit={onSubmit} />);
 
-    act(() => {
-        submit(form);
-    });
+    const form = document.getElementById('form');
+
+    fireEvent.submit(form as HTMLFormElement);
 
     expect(count).toBe(1);
     expect(submittedValue).toEqual(true);
@@ -120,35 +79,30 @@ test('should set the resetted value to false after the reset', () => {
         resettedValue = resetted;
         count = ++count;
     };
-    const instance = create(
-        <div>
-            <Form id={'form'} onReset={onReset} />
-        </div>
-    ).root;
 
-    const form = instance.findByType('form');
+    render(<Form id={'form'} onReset={onReset} />);
 
-    act(() => {
-        reset(form);
-    });
+    const form = document.getElementById('form');
+
+    fireEvent.reset(form as HTMLFormElement);
 
     expect(count).toBe(1);
     expect(resettedValue).toEqual(true);
 });
 
+// TODO: after reset the values in the state are the initial values
+
 test('should handle submitted successes', () => {
     let submittedSuccesses: any;
-    let count = 0;
 
     const onSubmit = ({ successes }: any) => {
         submittedSuccesses = successes;
-        count = ++count;
     };
     const validation = ({ value, setSuccess }: Validation) => {
         return value && setSuccess(value);
     };
 
-    const instance = create(
+    render(
         <div>
             <Form id={'form'} onSubmit={onSubmit}>
                 {withValidation({
@@ -163,23 +117,26 @@ test('should handle submitted successes', () => {
                 })(Input)}
             </Form>
         </div>
-    ).root;
+    );
 
-    const form = instance.findByType('form');
-    const firstName = instance.find((el) => el.type == 'input' && el.props.id == 'firstName');
-    const lastName = instance.find((el) => el.type == 'input' && el.props.id == 'lastName');
+    const form = document.getElementById('form');
+    const firstName = document.getElementById('firstName');
+    const lastName = document.getElementById('lastName');
 
-    act(() => {
-        change(firstName, 'Paco Success');
-    });
-    act(() => {
-        change(lastName, 'García Success');
-    });
-    act(() => {
-        submit(form);
+    fireEvent.change(firstName as HTMLInputElement, {
+        target: {
+            value: 'Paco Success',
+        },
     });
 
-    expect(count).toBe(1);
+    fireEvent.change(lastName as HTMLInputElement, {
+        target: {
+            value: 'García Success',
+        },
+    });
+
+    fireEvent.submit(form as HTMLFormElement);
+
     expect(submittedSuccesses).toEqual({
         firstName: 'Paco Success',
         lastName: 'García Success',
@@ -195,36 +152,38 @@ test('should handle submitted errors', () => {
         count = ++count;
     };
 
-    const instance = create(
-        <div>
-            <Form id={'form'} onSubmit={onSubmit}>
-                {withValidation({
-                    id: 'firstName',
-                    name: 'firstName',
-                    validation,
-                })(Input)}
-                {withValidation({
-                    id: 'lastName',
-                    name: 'lastName',
-                    validation,
-                })(Input)}
-            </Form>
-        </div>
-    ).root;
+    render(
+        <Form id={'form'} onSubmit={onSubmit}>
+            {withValidation({
+                id: 'firstName',
+                name: 'firstName',
+                validation,
+            })(Input)}
+            {withValidation({
+                id: 'lastName',
+                name: 'lastName',
+                validation,
+            })(Input)}
+        </Form>
+    );
 
-    const form = instance.findByType('form');
-    const firstName = instance.find((el) => el.type == 'input' && el.props.id == 'firstName');
-    const lastName = instance.find((el) => el.type == 'input' && el.props.id == 'lastName');
+    const form = document.getElementById('form');
+    const firstName = document.getElementById('firstName');
+    const lastName = document.getElementById('lastName');
 
-    act(() => {
-        change(firstName, 'Paco Error');
+    fireEvent.change(firstName as HTMLInputElement, {
+        target: {
+            value: 'Paco Error',
+        },
     });
-    act(() => {
-        change(lastName, 'García Error');
+
+    fireEvent.change(lastName as HTMLInputElement, {
+        target: {
+            value: 'García Error',
+        },
     });
-    act(() => {
-        submit(form);
-    });
+
+    fireEvent.submit(form as HTMLFormElement);
 
     expect(count).toBe(1);
     expect(submittedErrors).toEqual({
@@ -233,165 +192,7 @@ test('should handle submitted errors', () => {
     });
 });
 
-test('should handle reset values', () => {
-    let count = 0;
-    let resetted: any;
-    let firstName: any;
-    let lastName: any;
-
-    const onReset = ({ values }: any) => {
-        resetted = values;
-        count = ++count;
-    };
-
-    const instance = create(
-        <div>
-            <Form id={'form'} onReset={onReset}>
-                <Input value={'Paca'} name={'firstName'} />
-                <Input value={'García'} name={'lastName'} />
-            </Form>
-        </div>
-    ).root;
-
-    const form = instance.findByType('form');
-    firstName = instance.find((el) => el.type == 'input' && el.props.name == 'firstName');
-    lastName = instance.find((el) => el.type == 'input' && el.props.name == 'lastName');
-
-    act(() => {
-        change(firstName, 'Paco');
-    });
-    act(() => {
-        change(lastName, 'Pérez');
-    });
-
-    expect({
-        firstName: firstName.props.value,
-        lastName: lastName.props.value,
-    }).toEqual({
-        firstName: 'Paco',
-        lastName: 'Pérez',
-    });
-
-    act(() => {
-        reset(form);
-    });
-
-    expect(count).toBe(1);
-    expect(resetted).toEqual({
-        firstName: 'Paca',
-        lastName: 'García',
-    });
-    expect({
-        firstName: firstName.props.value,
-        lastName: lastName.props.value,
-    }).toEqual({
-        firstName: 'Paca',
-        lastName: 'García',
-    });
-});
-
-test('should debounce wait N milliseconds', () => {
-    let wait: any;
-
-    jest.spyOn(utils, 'debounce').mockImplementation((fn, ms) => {
-        wait = ms;
-
-        return fn;
-    });
-
-    const instance = create(
-        <div>
-            <Form id={'form'} wait={8}>
-                {withValidation({
-                    id: 'firstName',
-                    name: 'firstName',
-                    validation,
-                })(Input)}
-            </Form>
-        </div>
-    ).root;
-    const input = instance.findByType('input');
-
-    act(() => {
-        change(input, 'Paco');
-    });
-
-    expect(wait).toEqual(8);
-});
-
-test('should set initial values', async () => {
-    let paragraph;
-    const phrase = 'Paca García - Female';
-
-    const Component = () => {
-        const { initialValues } = React.useContext(FormContext);
-        const { firstName, gender, lastName } = initialValues;
-
-        return (
-            <>
-                <Select id={'firstName'} value={'Paca'} name={'firstName'} />
-                <Input value={'García'} name={'lastName'} />
-                <Input value={'Female'} name={'gender'} checked={true} type={'radio'} />
-                <Input value={'Male'} name={'gender'} type={'radio'} />
-                <p>{`${firstName} ${lastName} - ${gender}`}</p>;
-            </>
-        );
-    };
-    const init = create(
-        <Form id={'form'}>
-            <Component />
-        </Form>
-    );
-
-    await act(() => {
-        return waitUntil(() => {
-            const instance = init.root;
-            paragraph = instance.findByType('p').props.children;
-
-            return paragraph === phrase;
-        });
-    });
-
-    expect(paragraph).toBe(phrase);
-});
-
-test('should initial values be equals to values', async () => {
-    let paragraph;
-
-    const Component = () => {
-        const { initialValues, values } = React.useContext(FormContext);
-
-        return (
-            <>
-                <Select id={'firstName'} value={'Paca'} name={'firstName'} />
-                <Input value={'García'} name={'lastName'} />
-                <Input value={'Female'} name={'gender'} type={'radio'} />
-                <Input value={'Male'} name={'gender'} checked={true} type={'radio'} />
-                <p>{JSON.stringify(initialValues) === JSON.stringify(values)}</p>
-            </>
-        );
-    };
-
-    const init = create(
-        <Form id={'form'}>
-            <Component />
-        </Form>
-    );
-
-    await act(() => {
-        return waitUntil(() => {
-            const instance = init.root;
-            paragraph = instance.findByType('p').props.children;
-
-            return paragraph === true;
-        });
-    });
-
-    expect(paragraph).toBe(true);
-});
-
 test('should consume values', () => {
-    let paragraph;
     const phrase = 'My name is Paco';
 
     const Component = () => {
@@ -405,26 +206,25 @@ test('should consume values', () => {
         );
     };
 
-    const init = create(
+    render(
         <Form id={'form'}>
             <Component />
         </Form>
     );
 
-    const instance = init.root;
-    const input = instance.findByType('input');
+    const form = document.getElementById('form') as HTMLFormElement;
+    const firstName = document.getElementById('firstName');
 
-    act(() => {
-        change(input, 'Paco');
+    fireEvent.change(firstName as HTMLInputElement, {
+        target: {
+            value: 'Paco',
+        },
     });
 
-    paragraph = instance.findByType('p').props.children.join('');
-
-    expect(paragraph).toBe(phrase);
+    expect(form.querySelector('p')?.innerHTML).toBe(phrase);
 });
 
 test('should consume errors', () => {
-    let paragraph;
     const phrase = errorMessage('Paco Error');
 
     const Component = () => {
@@ -442,26 +242,25 @@ test('should consume errors', () => {
             </>
         );
     };
-    const init = create(
+    render(
         <Form id={'form'}>
             <Component />
         </Form>
     );
 
-    const instance = init.root;
-    const input = instance.findByType('input');
+    const form = document.getElementById('form') as HTMLFormElement;
+    const firstName = document.getElementById('firstName');
 
-    act(() => {
-        change(input, 'Paco Error');
+    fireEvent.change(firstName as HTMLInputElement, {
+        target: {
+            value: 'Paco Error',
+        },
     });
 
-    paragraph = instance.findByType('p').props.children;
-
-    expect(paragraph).toBe(phrase);
+    expect(form.querySelector('p')?.innerHTML).toBe(phrase);
 });
 
-test('should validate success', async () => {
-    let paragraph;
+test('should validate success', () => {
     const phrase = 'Paco!';
 
     const validation = ({ value, setSuccess }: Validation) => value && setSuccess(value);
@@ -479,53 +278,25 @@ test('should validate success', async () => {
             </>
         );
     };
-    const init = create(
-        <Form id={'form'}>
-            <Component />
-        </Form>
-    );
-    const instance = init.root;
-    const input = instance.findByType('input');
-
-    act(() => {
-        change(input, 'Paco!');
-    });
-
-    paragraph = instance.findByType('p').props.children;
-
-    expect(paragraph).toBe(phrase);
-});
-
-test('should execute field onchange', async () => {
-    let changed = false;
-
-    const Component = () => {
-        return (
-            <>
-                <Validator name={'firstName'} validation={validation}>
-                    <Input name={'firstName'} onChange={() => (changed = true)} />
-                </Validator>
-            </>
-        );
-    };
-    const init = create(
+    render(
         <Form id={'form'}>
             <Component />
         </Form>
     );
 
-    const instance = init.root;
-    const input = instance.findByType('input');
+    const form = document.getElementById('form') as HTMLFormElement;
+    const input = document.querySelector('input');
 
-    act(() => {
-        change(input, 'Paco Error');
+    fireEvent.change(input as HTMLInputElement, {
+        target: {
+            value: 'Paco!',
+        },
     });
 
-    expect(changed).toEqual(true);
+    expect(form.querySelector('p')?.innerHTML).toBe(phrase);
 });
 
-test('should change value of a input text', async () => {
-    let paragraph;
+test('should change value of a input text', () => {
     const phrase = 'My name is Paco';
 
     const Component = () => {
@@ -538,32 +309,25 @@ test('should change value of a input text', async () => {
             </>
         );
     };
-    const init = create(
+    render(
         <Form id={'form'}>
             <Component />
         </Form>
     );
 
-    await act(() => {
-        return waitUntil(() => {
-            const instance = init.root;
-            const input = instance.findByType('input');
+    const form = document.getElementById('form') as HTMLFormElement;
+    const input = document.querySelector('input');
 
-            act(() => {
-                change(input, 'Paco');
-            });
-
-            paragraph = instance.findByType('p').props.children.join('');
-
-            return paragraph === phrase;
-        });
+    fireEvent.change(input as HTMLInputElement, {
+        target: {
+            value: 'Paco',
+        },
     });
 
-    expect(paragraph).toBe(phrase);
+    expect(form.querySelector('p')?.innerHTML).toBe(phrase);
 });
 
-test('should set default value of a input text', async () => {
-    let paragraph;
+test('should set default value of a input text', () => {
     const phrase = 'My name is Paco';
 
     const Component = () => {
@@ -571,36 +335,23 @@ test('should set default value of a input text', async () => {
 
         return (
             <>
-                <Input id={'firstName'} value={'Paco'} name={'firstName'} />
+                <Input id={'firstName'} defaultValue={'Paco'} name={'firstName'} />
                 <p>My name is {values && values.firstName}</p>
             </>
         );
     };
-    const init = create(
+    render(
         <Form id={'form'}>
             <Component />
         </Form>
     );
 
-    await act(() => {
-        return waitUntil(() => {
-            const instance = init.root;
+    const form = document.getElementById('form') as HTMLFormElement;
 
-            act(() => {
-                change(instance.findByType('input'), 'Paco');
-            });
-
-            paragraph = instance.findByType('p').props.children.join('');
-
-            return paragraph === phrase;
-        });
-    });
-
-    expect(paragraph).toBe(phrase);
+    expect(form.querySelector('p')?.innerHTML).toBe(phrase);
 });
 
-test('should change value of a textarea', async () => {
-    let paragraph;
+test('should add value of a textarea', () => {
     const phrase = 'My name is Paco';
 
     const Component = () => {
@@ -613,32 +364,25 @@ test('should change value of a textarea', async () => {
             </>
         );
     };
-    const init = create(
+    render(
         <Form id={'form'}>
             <Component />
         </Form>
     );
 
-    await act(() => {
-        return waitUntil(() => {
-            const instance = init.root;
-            const textarea = instance.findByType('textarea');
+    const form = document.getElementById('form') as HTMLFormElement;
+    const firstName = document.getElementById('firstName') as HTMLTextAreaElement;
 
-            act(() => {
-                change(textarea, 'Paco');
-            });
-
-            paragraph = instance.findByType('p').props.children.join('');
-
-            return paragraph === phrase;
-        });
+    fireEvent.change(firstName, {
+        target: {
+            value: 'Paco',
+        },
     });
 
-    expect(paragraph).toBe(phrase);
+    expect(form.querySelector('p')?.innerHTML).toBe(phrase);
 });
 
-test('should set default value of a textarea', async () => {
-    let paragraph;
+test('should set default value of a textarea', () => {
     const phrase = 'My name is Paco';
 
     const Component = () => {
@@ -646,36 +390,23 @@ test('should set default value of a textarea', async () => {
 
         return (
             <>
-                <Textarea id={'firstName'} value={'Paco'} name={'firstName'} />
+                <Textarea id={'firstName'} defaultValue={'Paco'} name={'firstName'} />
                 <p>My name is {values && values.firstName}</p>
             </>
         );
     };
-    const init = create(
+    render(
         <Form id={'form'}>
             <Component />
         </Form>
     );
 
-    await act(() => {
-        return waitUntil(() => {
-            const instance = init.root;
+    const form = document.getElementById('form') as HTMLFormElement;
 
-            act(() => {
-                change(instance.findByType('textarea'), 'Paco');
-            });
-
-            paragraph = instance.findByType('p').props.children.join('');
-
-            return paragraph === phrase;
-        });
-    });
-
-    expect(paragraph).toBe(phrase);
+    expect(form.querySelector('p')?.innerHTML).toBe(phrase);
 });
 
-test('should change value of a radio element', async () => {
-    let paragraph;
+test('should change checked radio element', () => {
     const phrase = 'My name is Paco';
 
     const Component = () => {
@@ -683,79 +414,32 @@ test('should change value of a radio element', async () => {
 
         return (
             <>
-                <Input id={'firstName'} name={'firstName'} type={'radio'} value={'Paco'} />
-                <Input id={'firstName'} name={'firstName'} type={'radio'} value={'Paca'} />
-                <p>My name is {values && values.firstName}</p>
-            </>
-        );
-    };
-    const init = create(
-        <Form id={'form'}>
-            <Component />
-        </Form>
-    );
-
-    await act(() => {
-        return waitUntil(() => {
-            const instance = init.root;
-            const radios = instance.findAllByType('input');
-            const paca = radios[0];
-
-            act(() => {
-                change(paca, paca.props.value, paca.props.type, true);
-            });
-
-            paragraph = instance.findByType('p').props.children.join('');
-
-            return paragraph === phrase;
-        });
-    });
-
-    expect(paragraph).toBe(phrase);
-});
-
-test('should set default value of a radio element', async () => {
-    let paragraph;
-    const phrase = 'My name is Paco';
-
-    const Component = () => {
-        const { values } = React.useContext(FormContext);
-
-        return (
-            <>
+                <Input name={'firstName'} type={'radio'} defaultValue={'Paco'} />
                 <Input
-                    checked={true}
-                    id={'firstName'}
+                    defaultChecked={true}
                     name={'firstName'}
                     type={'radio'}
-                    value={'Paco'}
+                    defaultValue={'Paca'}
                 />
-                <Input id={'firstName'} name={'firstName'} type={'radio'} value={'Paca'} />
                 <p>My name is {values && values.firstName}</p>
             </>
         );
     };
-    const init = create(
+    render(
         <Form id={'form'}>
             <Component />
         </Form>
     );
 
-    await act(() => {
-        return waitUntil(() => {
-            const instance = init.root;
+    const input = document.querySelector('input') as HTMLInputElement;
+    const form = document.getElementById('form') as HTMLFormElement;
 
-            paragraph = instance.findByType('p').props.children.join('');
+    fireEvent.click(input);
 
-            return paragraph === phrase;
-        });
-    });
-
-    expect(paragraph).toBe(phrase);
+    expect(form.querySelector('p')?.innerHTML).toBe(phrase);
 });
 
-test('should change value of a checkbox element', async () => {
-    let paragraph;
+test('should set default value of a radio element', () => {
     const phrase = 'My name is Paco';
 
     const Component = () => {
@@ -763,39 +447,24 @@ test('should change value of a checkbox element', async () => {
 
         return (
             <>
-                <Input id={'firstName'} name={'firstName'} type={'checkbox'} value={'Paco'} />
-                <Input id={'firstName'} name={'firstName'} type={'checkbox'} value={'Paca'} />
+                <Input defaultChecked={true} name={'firstName'} type={'radio'} value={'Paco'} />
+                <Input name={'firstName'} type={'radio'} value={'Paca'} />
                 <p>My name is {values && values.firstName}</p>
             </>
         );
     };
-    const init = create(
+    render(
         <Form id={'form'}>
             <Component />
         </Form>
     );
 
-    await act(() => {
-        return waitUntil(() => {
-            const instance = init.root;
-            const checkboxs = instance.findAllByType('input');
-            const paca = checkboxs[0];
+    const form = document.getElementById('form') as HTMLFormElement;
 
-            act(() => {
-                change(paca, paca.props.value, paca.props.type, true);
-            });
-
-            paragraph = instance.findByType('p').props.children.join('');
-
-            return paragraph === phrase;
-        });
-    });
-
-    expect(paragraph).toBe(phrase);
+    expect(form.querySelector('p')?.innerHTML).toBe(phrase);
 });
 
-test('should set default value of a checkbox element', async () => {
-    let paragraph;
+test('should change value of a checkbox element', () => {
     const phrase = 'My name is Paco';
 
     const Component = () => {
@@ -803,39 +472,27 @@ test('should set default value of a checkbox element', async () => {
 
         return (
             <>
-                <Input
-                    checked={true}
-                    id={'firstName'}
-                    name={'firstName'}
-                    type={'checkbox'}
-                    value={'Paco'}
-                />
-                <Input id={'firstName'} name={'firstName'} type={'checkbox'} value={'Paca'} />
-                <p>My name is {values && values.firstName}</p>
+                <Input name={'firstName1'} type={'checkbox'} value={'Paco'} />
+                <Input name={'firstName2'} type={'checkbox'} value={'Paca'} />
+                <p>My name is {values && values.firstName1}</p>
             </>
         );
     };
-    const init = create(
+    render(
         <Form id={'form'}>
             <Component />
         </Form>
     );
 
-    await act(() => {
-        return waitUntil(() => {
-            const instance = init.root;
+    const input = document.querySelector('input') as HTMLInputElement;
+    const form = document.getElementById('form') as HTMLFormElement;
 
-            paragraph = instance.findByType('p').props.children.join('');
+    fireEvent.click(input);
 
-            return paragraph === phrase;
-        });
-    });
-
-    expect(paragraph).toBe(phrase);
+    expect(form.querySelector('p')?.innerHTML).toBe(phrase);
 });
 
-test('should change value of a select element', async () => {
-    let paragraph;
+test('should set default value of a checkbox element', () => {
     const phrase = 'My name is Paco';
 
     const Component = () => {
@@ -843,37 +500,51 @@ test('should change value of a select element', async () => {
 
         return (
             <>
-                <Select id={'firstName'} name={'firstName'} />
-                <p>My name is {values && values.firstName}</p>
+                <Input defaultChecked={true} name={'firstName1'} type={'checkbox'} value={'Paco'} />
+                <Input name={'firstName2'} type={'checkbox'} value={'Paca'} />
+                {values ? <p>My name is {values.firstName1}</p> : null}
             </>
         );
     };
-    const init = create(
+    render(
         <Form id={'form'}>
             <Component />
         </Form>
     );
 
-    await act(() => {
-        return waitUntil(() => {
-            const instance = init.root;
-            const select = instance.findByType('select');
+    const form = document.getElementById('form') as HTMLFormElement;
 
-            act(() => {
-                change(select, 'Paco', 'select');
-            });
+    expect(form.querySelector('p')?.innerHTML).toBe(phrase);
+});
 
-            paragraph = instance.findByType('p').props.children.join('');
+test('should change value of a select element', () => {
+    const phrase = 'My name is Paco';
 
-            return paragraph === phrase;
-        });
-    });
+    const Component = () => {
+        const { values } = React.useContext(FormContext);
 
-    expect(paragraph).toBe(phrase);
+        return (
+            <>
+                <Select name={'firstName'} />
+                <p>My name is {values && values.firstName}</p>
+            </>
+        );
+    };
+    render(
+        <Form id={'form'}>
+            <Component />
+        </Form>
+    );
+
+    const option = document.querySelector('option') as HTMLOptionElement;
+    const form = document.getElementById('form') as HTMLFormElement;
+
+    fireEvent.change(option);
+
+    expect(form.querySelector('p')?.innerHTML).toBe(phrase);
 });
 
 test('should set default value of a select element', async () => {
-    let paragraph;
     const phrase = 'My name is Paco';
 
     const Component = () => {
@@ -881,182 +552,68 @@ test('should set default value of a select element', async () => {
 
         return (
             <>
-                <Select id={'firstName'} value={'Paco'} name={'firstName'} />
+                <Select defaultValue={'Paco'} name={'firstName'} />
                 <p>My name is {values && values.firstName}</p>
             </>
         );
     };
-    const init = create(
+    render(
         <Form id={'form'}>
             <Component />
         </Form>
     );
 
-    await act(() => {
-        return waitUntil(() => {
-            const instance = init.root;
-            const select = instance.findByType('select');
+    const form = document.getElementById('form') as HTMLFormElement;
 
-            act(() => {
-                change(select, 'Paco', 'select');
-            });
-
-            paragraph = instance.findByType('p').props.children.join('');
-
-            return paragraph === phrase;
-        });
-    });
-
-    expect(paragraph).toBe(phrase);
+    expect(form.querySelector('p')?.innerHTML).toBe(phrase);
 });
 
 test('should change value of a select multiple element', async () => {
-    let paragraph;
-    const phrase = 'My name is Paca,Paco';
+    const phrase = 'My name is PacoPaca';
 
     const Component = () => {
         const { values } = React.useContext(FormContext);
 
         return (
             <>
-                <Select id={'firstName'} multiple name={'firstName'} />
+                <Select multiple name={'firstName'} />
                 <p>My name is {values && values.firstName}</p>
             </>
         );
     };
-    const init = create(
+    render(
         <Form id={'form'}>
             <Component />
         </Form>
     );
 
-    await act(() => {
-        return waitUntil(() => {
-            const instance = init.root;
-            const select = instance.findByType('select');
+    const form = document.getElementById('form') as HTMLFormElement;
 
-            act(() => {
-                changeSelectMultiple(select, [{ value: 'Paca' }, { value: 'Paco' }]);
-            });
+    userEvent.selectOptions(form.querySelector('select') as HTMLSelectElement, ['Paca', 'Paco']);
 
-            paragraph = instance.findByType('p').props.children.join('');
-
-            return paragraph === phrase;
-        });
-    });
-
-    expect(paragraph).toBe(phrase);
+    expect(form.querySelector('p')?.innerHTML).toBe(phrase);
 });
 
-test('should set default value of a select multiple element', async () => {
-    let paragraph;
-    const phrase = 'My name is Paca,Paco';
+test('should set default value of a select multiple element', () => {
+    const phrase = 'My name is PacoPaca';
 
     const Component = () => {
         const { values } = React.useContext(FormContext);
 
         return (
             <>
-                <Select id={'firstName'} value={['Paca', 'Paco']} multiple name={'firstName'} />
+                <Select defaultValue={['Paca', 'Paco']} multiple name={'firstName'} />
                 <p>My name is {values && values.firstName}</p>
             </>
         );
     };
-    const init = create(
+    render(
         <Form id={'form'}>
             <Component />
         </Form>
     );
 
-    await act(() => {
-        return waitUntil(() => {
-            const instance = init.root;
-            const select = instance.findByType('select');
+    const form = document.getElementById('form') as HTMLFormElement;
 
-            act(() => {
-                changeSelectMultiple(select, [{ value: 'Paca' }, { value: 'Paco' }]);
-            });
-
-            paragraph = instance.findByType('p').props.children.join('');
-
-            return paragraph === phrase;
-        });
-    });
-
-    expect(paragraph).toBe(phrase);
+    expect(form.querySelector('p')?.innerHTML).toBe(phrase);
 });
-
-class ErrorBoundary extends React.Component {
-    state = { hasError: false, e: false };
-
-    static getDerivedStateFromError(e: any) {
-        return { hasError: true, e };
-    }
-
-    render() {
-        if (this.state.hasError) {
-            return <p>{this.state.e.toString()}</p>;
-        }
-
-        return <p>{this.props.children}</p>;
-    }
-}
-
-// TODO: review console error
-test("should throw an error is a form field doesn't have name", () => {
-    const instance = create(
-        <ErrorBoundary>
-            <Form id={'form'}>
-                <Input id={'error'} />
-            </Form>
-        </ErrorBoundary>
-    ).root;
-
-    const p = instance.findByType('p');
-
-    expect(p.props.children).toEqual(
-        'Error: Error: Please, you have to add a name to the form field'
-    );
-});
-
-// @see: https://github.com/devlato/async-wait-until/blob/master/src/waitUntil.js
-function waitUntil(predicate: () => any, timeout?: number, interval?: number): Promise<void> {
-    const timerInterval = interval || 10;
-    const timerTimeout = timeout || 200;
-
-    return new Promise(function promiseCallback(resolve, reject) {
-        let timer: NodeJS.Timeout;
-        let timeoutTimer: NodeJS.Timeout;
-        let clearTimers: () => any;
-        let doStep: () => any;
-
-        clearTimers = function clearWaitTimers() {
-            clearTimeout(timeoutTimer);
-            clearInterval(timer);
-        };
-
-        doStep = function doTimerStep() {
-            let result;
-
-            try {
-                result = predicate();
-
-                if (result) {
-                    clearTimers();
-                    resolve(result);
-                } else {
-                    timer = setTimeout(doStep, timerInterval);
-                }
-            } catch (e) {
-                clearTimers();
-                reject(e);
-            }
-        };
-
-        timer = setTimeout(doStep, timerInterval);
-        timeoutTimer = setTimeout(function onTimeout() {
-            clearTimers();
-            reject(new Error('Timed out after waiting for ' + timerTimeout + 'ms'));
-        }, timerTimeout);
-    });
-}

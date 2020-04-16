@@ -1,4 +1,4 @@
-import { omit, debounce } from '../src/utils';
+import { omit } from '../src/utils';
 
 test('omit none', () => {
     const obj = {
@@ -26,20 +26,4 @@ test('omit all items', () => {
     };
 
     expect(omit(obj, ['firstName', 'lastName'])).toEqual({});
-});
-
-jest.useFakeTimers();
-
-test('debounce', () => {
-    const callback = jest.fn();
-    const fn = debounce(callback, 100);
-    const fnZero = debounce(callback);
-
-    fn('Paco');
-    fnZero();
-
-    jest.runAllTimers();
-
-    expect(callback).toBeCalled();
-    expect(callback.mock.calls.length).toBe(2);
 });

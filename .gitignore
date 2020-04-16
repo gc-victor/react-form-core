@@ -56,5 +56,5 @@ typings/
 .env
 
 # distribution folder
-# dist/
+dist/
 

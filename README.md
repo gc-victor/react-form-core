@@ -1,6 +1,10 @@
 # React Form Core
 
-React Form Core is an utility to create your own form elements components
+React Form Core is a lightweight, only 1.37 kB (Minified + Gzipped), utility to create your form components easily. Just use the Form component and it works out of the box.
+
+The Form component to manage form actions and events. With the responsibility of handle its children changes and its operations. It maintains a context of the form to use it as you wish.
+
+The library also provides a simple Validation component and a HOC (withValidation).
 
 ## Install
 
@@ -10,87 +14,125 @@ You can use npm or yarn to install it.
 
 `$ yarn add react-form-core`
 
-## Components
+## Let's Play
 
-### Validator
+Create a simple Field component wrapper with an error message. Use the FormContext to get and set data to the context of the form, and the HOC withValidation to validate the field value.  
 
-Validate form fields and, if needed, adds an error message. 
-
-```
-import { Form, Validator } from 'react-form-core';
-import { Input } from './components/input';
-import { Submit } from './components/submit';
-
-<Form>
-    <Validator name={'firstName'} validation={({ value, setError }) => value && setError('Error: is truthy!')}>
-        <Input name={'firstName'} />
-    </Validator>
-    <FormConsumer>
-        {({ errors }) => {
-            const errorMessage = errors && errors.firstName;
-
-            return (
-                errorMessage &&
-                <p>
-                    {errorMessage}
-                </p>
-            );
-        }}
-    </FormConsumer>;
-    <Submit>Submit</Submit>
-</Form>
-```
-
-[More about the validator component.](./src/validator/README.md)
-
-### Field
-
-Field element is a wrapper for your form fields elements. It is in charge of setting the value of the field to the form context.
+`./components/field.js`
 
 ```
-import { Field } from 'react-form-core';
+import { FormContext, withValidation } from 'react-form-core';
 
-const Input = (label, name, ...rest) =>
-    <label>
-        <span>{label}</span>
-        <Field name={name}>
-            <input ...rest />
-        <Field/>
-    </label>;
+export const Field = ({
+    children,
+    label,
+    name,
+    validation,
+    ...rest
+}) => {
+    const { errors, values } = React.useContext(FormContext);
+    const errorMessage = errors && errors[name];
+    const errorClassName = errorMessage ? 'has-error' : '';
+    const ChildrenField = (props) => React.cloneElement(children, props);
+    const childrenField = validation ? (
+        withValidation({ name, validation, ...rest })(ChildField)
+    ) : (
+        <ChildrenField {...rest} />
+    );
+
+    return (
+        <label className={errorClassName}>
+            <span>{label}</span>
+            {childrenField}
+            {errorMessage && <p>{errorMessage}<p>}
+        </label>
+    );
+};
 ```
 
-[More about the field component.](./src/field/README.md)
+Use the Field component to create a basic input.
 
-### Form
+`./components/input.js`
 
-Component to manage form actions and events. It has the responsibility of handle his children values and errors.
+```
+import { Field } from './components/field';
+
+export const Input = (props) => {
+    return <Field {...props}>
+        <input {...props} />
+    </Field>   
+}
+```
+
+As you will need to submit the form, let's create a submit button and disabled it if there is an error. 
+
+`./components/submit.js`
+
+```
+export const Submit = ({ ...rest }) => {
+    const { errors, values } = React.useContext(FormContext);
+    const hasErrors = Object.keys(errors).length;
+
+    return <button disabled={hasErrors} type="submit" {...rest}>Submit</button>   
+}
+```
+
+Is time to use your components in the form.
+
+`./views/form.js` 
 
 ```
 import { Form } from 'react-form-core';
 import { Input } from './components/input';
 import { Submit } from './components/submit';
 
-<Form handleSubmit={({ ev, errors, values }) => {}}>
-    <Input label={'First name'} name={'firstName'} />
-    <Submit>Submit</Submit>
-</Form>
+// Validates the form fields and, if needed, the Field component will add an error message.
+const validation = ({ value, setError }) => value && setError('Ooooh!')
+const onSubmit={({ ev, errors, values }) => {
+    // send the form using the values or the form event 
+}}
+
+export const App = () => {
+    return <Form onSubmit={onSubmit}>
+        <Input label={'First name'} name={'firstName'} />
+        <Submit />
+    </Form>
+}
 ```
 
-#### FormConsumer
+## Context API
 
-```
-import { Form, FormConsumer } from 'react-form-core';
+API to get and set errors and successes messages, and get the values from the form. 
 
-<Form>
-    <FormConsumer>
-        {({ values }) =>
-            <p>Value: {values && values.firstName}</p>
-        }
-    </FormConsumer>
-</Form>
-```
+- errors:
 
-[More about the form component.](./src/form/README.md)
+    Object of errors by field name
+
+    `{ <name>: <error_message> }` 
+
+- setError:
+
+    Set errors by field name
+
+    `setError(<name>, <error_message>)`
+
+- setSuccess:
+    
+    Set successes by field name
+
+    `setError(<name>, <success_message>)`
+
+- successes:
+
+    Object of successes by field name
+
+    `{ <name>: <success_message> }`
+
+- values:
+
+    Object of values by field name
+
+    `{ <name>: <value> }`
 
 ## Compatible Versioning
 
