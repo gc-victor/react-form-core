@@ -24,23 +24,33 @@ export const Form = ({ children, onReset, onSubmit, ...rest }: FormProps) => {
 
     React.useEffect(() => {
         const form = (formRef.current as unknown) as HTMLFormElement;
-        const initialValues = Array.from(form.elements).reduce((acc: Model, element: any) => {
+        const formElements = [].slice.call(form.elements) || [];
+        const initialValues = formElements.reduce((acc: Model, element: any) => {
+            const name = element.name;
+
+            if (!name) {
+                return acc;
+            }
+
             const type = element.type;
             const hasCheckedAttr = /checkbox|radio/.test(element.type);
             const isChecked = element.defaultChecked === true;
+            const selectedOptions = element.selectedOptions
+                ? [].slice.call(element.selectedOptions)
+                : [];
             const value =
                 element.type === 'select-multiple'
-                    ? Array.from(element.selectedOptions).map((option: any) => {
+                    ? selectedOptions.map((option: any) => {
                         return option.value;
                     })
                     : element.value || element.defaultValue;
             const checkedValue = isChecked ? value : '';
 
             if (type === 'radio') {
-                return { ...acc, [element.name]: isChecked ? value : acc[element.name] };
+                return { ...acc, [name]: isChecked ? value : acc[name] };
             }
 
-            return { ...acc, [element.name]: hasCheckedAttr ? checkedValue : value };
+            return { ...acc, [name]: hasCheckedAttr ? checkedValue : value };
         }, {});
 
         setState((prevState) => {
@@ -144,16 +154,20 @@ export const Form = ({ children, onReset, onSubmit, ...rest }: FormProps) => {
 
     function handleChange(ev: React.ChangeEvent<HTMLFormElement>) {
         const element = ev.target;
+        const name = element.name;
         const hasCheckedAttr = /checkbox|radio/.test(element.type);
+        const selectedOptions = element.selectedOptions
+            ? [].slice.call(element.selectedOptions)
+            : [];
         const value =
             element.type === 'select-multiple'
-                ? Array.from(element.selectedOptions).map((option: any) => {
+                ? selectedOptions.map((option: any) => {
                     return option.value;
                 })
                 : element.value;
         const checkedValue = element.checked === true ? value : '';
 
-        handleValue(element.name, hasCheckedAttr ? checkedValue : value);
+        name && handleValue(name, hasCheckedAttr ? checkedValue : value);
     }
 
     return (

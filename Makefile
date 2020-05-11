@@ -9,6 +9,9 @@ help: ## Show this help message
 	@echo 'Targets:'
 	@egrep '^(.+)\:\ ##\ (.+)' ${MAKEFILE_LIST} | column -t -c 2 -s ':#'
 
+build : ## Build distribution files
+	npx tsdx build || exit $? ; \
+
 coverage :
 	if [ ! -d "./coverage" ]; then \
 		echo "You have to execute first 'make test-coverage'" ; \
@@ -17,9 +20,8 @@ coverage :
 		python -m SimpleHTTPServer 8000 ; \
 	fi ;\
 
-dist : ## Build distribution files
-	rm -rf dist || exit $? ;\
-	npx tsdx build || exit $? ; \
+gzip-size:
+	npx gzip-size-cli dist/react-form-core.cjs.production.min.js || exit $? ; \
 
 example :
 	npx @dev-pack/dev-pack start ;\

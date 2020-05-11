@@ -1,10 +1,6 @@
 # React Form Core
 
-React Form Core is a lightweight, only 1.37 kB (Minified + Gzipped), utility to create your form components easily. Just use the Form component and it works out of the box.
-
-The Form component to manage form actions and events. With the responsibility of handle its children changes and its operations. It maintains a context of the form to use it as you wish.
-
-The library also provides a simple Validation component and a HOC (withValidation).
+React Form Core is a lightweight, only 1.11 kB, utility to create your form components easily. Just use the Form component, and it works out of the box.
 
 ## Install
 
@@ -12,56 +8,82 @@ You can use npm or yarn to install it.
 
 `$ npm install --save react-form-core`
 
-`$ yarn add react-form-core`
-
 ## Let's Play
 
-Create a simple Field component wrapper with an error message. Use the FormContext to get and set data to the context of the form, and the HOC withValidation to validate the field value.  
+First of all, let's create a Validator component to validate the values of the fields if it is required.
+
+`./components/validator.js`
+
+```
+import React, { useContext } from 'react';
+import { FormContext } from 'react-form-core';
+
+export const Validator = ({ children, validation, name, ...rest }) => {
+    const { errors, setError, setSuccess, successes, values } = React.useContext(FormContext);
+    const element = children;
+    const onChange = (ev) => {
+        validation({
+            errors,
+            setError: (error) => setError(name, error),
+            setSuccess: (success) => setSuccess(name, success),
+            successes,
+            value: ev.target.value,
+            values,
+        });
+    };
+
+    return React.cloneElement(element, {
+        ...rest,
+        onChange,
+    });
+};
+```
+
+Create a simple Field component wrapper with an error message. Use the FormContext to get and set data to the context of the form, and the Validation component to validate the field values.
 
 `./components/field.js`
 
 ```
-import { FormContext, withValidation } from 'react-form-core';
+import React, { useContext } from 'react';
+import { FormContext } from 'react-form-core';
+import { Validator } from './validator';
 
-export const Field = ({
-    children,
-    label,
-    name,
-    validation,
-    ...rest
-}) => {
-    const { errors, values } = React.useContext(FormContext);
+export const Field = ({ children, label, name, validation }) => {
+    const { errors } = useContext(FormContext);
     const errorMessage = errors && errors[name];
     const errorClassName = errorMessage ? 'has-error' : '';
-    const ChildrenField = (props) => React.cloneElement(children, props);
-    const childrenField = validation ? (
-        withValidation({ name, validation, ...rest })(ChildField)
-    ) : (
-        <ChildrenField {...rest} />
-    );
 
     return (
         <label className={errorClassName}>
             <span>{label}</span>
-            {childrenField}
-            {errorMessage && <p>{errorMessage}<p>}
+            {validation ? (
+                <Validator name={name} validation={validation}>
+                    {children}
+                </Validator>
+            ) : (
+                children
+            )}
+            {errorMessage && <span>{errorMessage}</span>}
         </label>
     );
 };
 ```
 
-Use the Field component to create a basic input.
+Use the Field component to create an input.
 
 `./components/input.js`
 
 ```
+import React from 'react';
 import { Field } from './components/field';
 
-export const Input = (props) => {
-    return <Field {...props}>
-        <input {...props} />
-    </Field>   
-}
+export const Input = ({ label, validation, ...rest }) => {
+    return (
+        <Field label={label} validation={validation} {...rest}>
+            <input {...rest} />
+        </Field>
+    );
+};
 ```
 
 As you will need to submit the form, let's create a submit button and disabled it if there is an error. 
@@ -69,40 +91,49 @@ As you will need to submit the form, let's create a submit button and disabled i
 `./components/submit.js`
 
 ```
+import React, { useContext } from 'react';
+import { FormContext } from 'react-form-core';
+
 export const Submit = ({ ...rest }) => {
-    const { errors, values } = React.useContext(FormContext);
-    const hasErrors = Object.keys(errors).length;
+    const { errors } = useContext(FormContext);
+    const hasErrors = !!Object.keys(errors).length;
 
-    return <button disabled={hasErrors} type="submit" {...rest}>Submit</button>   
-}
+    return (
+        <button disabled={hasErrors} type="submit" {...rest}>
+            Submit
+        </button>
+    );
+};
 ```
 
-Is time to use your components in the form.
+Add the components to the form and create the application view.
 
-`./views/form.js` 
+`./views/app.js` 
 
 ```
+import React, { useContext } from 'react';
 import { Form } from 'react-form-core';
 import { Input } from './components/input';
 import { Submit } from './components/submit';
 
-// Validates the form fields and, if needed, the Field component will add an error message.
-const validation = ({ value, setError }) => value && setError('Ooooh!')
-const onSubmit={({ ev, errors, values }) => {
-    // send the form using the values or the form event 
-}}
-
 export const App = () => {
-    return <Form onSubmit={onSubmit}>
-        <Input label={'First name'} name={'firstName'} />
-        <Submit />
-    </Form>
+    const validation = ({ value, setError }) => value && setError('Submit disabled ;)');
+    const onSubmit={({ ev, errors, values }) => {
+        // send the form using the values or the form event 
+    }}
+
+    return (
+        <Form onSubmit={onSubmit}>
+            <p><Input label={'First name: '} name={'firstName'} validation={validation} /></p>
+            <p><Submit /></p>
+        </Form>
+    );
 }
 ```
 
-## Context API
+## FormContext API
 
-API to get and set errors and successes messages, and get the values from the form. 
+API to get and set errors and successes messages, and get the values from the form.
 
 - errors:
 

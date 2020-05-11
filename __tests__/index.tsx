@@ -1,11 +1,7 @@
 import * as React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Form, FormContext, Validation, withValidation } from '../src';
-
-const errorMessage = (value: string) => `Error: ${value} isn't correct`;
-const validation = ({ value, setError }: Validation) =>
-    /error/i.test(value) && setError(errorMessage(value));
+import { Form, FormContext } from '../src/form';
 
 const Input = ({ ...rest }: any) => {
     return <input {...rest} />;
@@ -90,106 +86,38 @@ test('should set the resetted value to false after the reset', () => {
     expect(resettedValue).toEqual(true);
 });
 
-// TODO: after reset the values in the state are the initial values
+test('should reset the values in the state are the initial values', () => {
+    const Component = () => {
+        const { values } = React.useContext(FormContext);
 
-test('should handle submitted successes', () => {
-    let submittedSuccesses: any;
-
-    const onSubmit = ({ successes }: any) => {
-        submittedSuccesses = successes;
-    };
-    const validation = ({ value, setSuccess }: Validation) => {
-        return value && setSuccess(value);
-    };
-
-    render(
-        <div>
-            <Form id={'form'} onSubmit={onSubmit}>
-                {withValidation({
-                    id: 'firstName',
-                    name: 'firstName',
-                    validation,
-                })(Input)}
-                {withValidation({
-                    id: 'lastName',
-                    name: 'lastName',
-                    validation,
-                })(Input)}
-            </Form>
-        </div>
-    );
-
-    const form = document.getElementById('form');
-    const firstName = document.getElementById('firstName');
-    const lastName = document.getElementById('lastName');
-
-    fireEvent.change(firstName as HTMLInputElement, {
-        target: {
-            value: 'Paco Success',
-        },
-    });
-
-    fireEvent.change(lastName as HTMLInputElement, {
-        target: {
-            value: 'García Success',
-        },
-    });
-
-    fireEvent.submit(form as HTMLFormElement);
-
-    expect(submittedSuccesses).toEqual({
-        firstName: 'Paco Success',
-        lastName: 'García Success',
-    });
-});
-
-test('should handle submitted errors', () => {
-    let submittedErrors: any;
-    let count = 0;
-
-    const onSubmit = ({ errors }: any) => {
-        submittedErrors = errors;
-        count = ++count;
+        return (
+            <>
+                <Input id={'firstName'} name={'firstName'} defaultValue="Paco" />
+                <p>My name is {values && values.firstName}</p>
+            </>
+        );
     };
 
     render(
-        <Form id={'form'} onSubmit={onSubmit}>
-            {withValidation({
-                id: 'firstName',
-                name: 'firstName',
-                validation,
-            })(Input)}
-            {withValidation({
-                id: 'lastName',
-                name: 'lastName',
-                validation,
-            })(Input)}
+        <Form id={'form'}>
+            <Component />
         </Form>
     );
 
-    const form = document.getElementById('form');
-    const firstName = document.getElementById('firstName');
-    const lastName = document.getElementById('lastName');
+    const form = document.getElementById('form') as HTMLFormElement;
+    const input = document.getElementById('firstName');
 
-    fireEvent.change(firstName as HTMLInputElement, {
+    fireEvent.change(input as HTMLInputElement, {
         target: {
-            value: 'Paco Error',
+            value: 'Paca',
         },
     });
 
-    fireEvent.change(lastName as HTMLInputElement, {
-        target: {
-            value: 'García Error',
-        },
-    });
+    expect(form.querySelector('p')?.innerHTML).toBe('My name is Paca');
 
-    fireEvent.submit(form as HTMLFormElement);
+    fireEvent.reset(form as HTMLFormElement);
 
-    expect(count).toBe(1);
-    expect(submittedErrors).toEqual({
-        firstName: errorMessage('Paco Error'),
-        lastName: errorMessage('García Error'),
-    });
+    expect(form.querySelector('p')?.innerHTML).toBe('My name is Paco');
 });
 
 test('should consume values', () => {
@@ -224,60 +152,26 @@ test('should consume values', () => {
     expect(form.querySelector('p')?.innerHTML).toBe(phrase);
 });
 
-test('should consume errors', () => {
-    const phrase = errorMessage('Paco Error');
+test('should validate error', () => {
+    const phrase = 'Paco?';
 
     const Component = () => {
-        const { errors } = React.useContext(FormContext);
         const name = 'firstName';
+        const { errors, setError, values } = React.useContext(FormContext);
+        const value = values[name];
+
+        React.useEffect(() => {
+            !errors[name] && value && setError(name, value);
+        }, [errors, value, setError]);
 
         return (
             <>
-                {withValidation({
-                    id: 'firstName',
-                    name: 'firstName',
-                    validation,
-                })(Input)}
-                <p>{errors[name]}</p>;
+                <Input name="firstName" />
+                <p>{errors[name]}</p>}
             </>
         );
     };
-    render(
-        <Form id={'form'}>
-            <Component />
-        </Form>
-    );
 
-    const form = document.getElementById('form') as HTMLFormElement;
-    const firstName = document.getElementById('firstName');
-
-    fireEvent.change(firstName as HTMLInputElement, {
-        target: {
-            value: 'Paco Error',
-        },
-    });
-
-    expect(form.querySelector('p')?.innerHTML).toBe(phrase);
-});
-
-test('should validate success', () => {
-    const phrase = 'Paco!';
-
-    const validation = ({ value, setSuccess }: Validation) => value && setSuccess(value);
-    const Component = () => {
-        const name = 'firstName';
-        const { successes } = React.useContext(FormContext);
-
-        return (
-            <>
-                {withValidation({
-                    name,
-                    validation,
-                })(Input)}
-                <p>{successes[name]}</p>}
-            </>
-        );
-    };
     render(
         <Form id={'form'}>
             <Component />
@@ -289,7 +183,45 @@ test('should validate success', () => {
 
     fireEvent.change(input as HTMLInputElement, {
         target: {
-            value: 'Paco!',
+            value: phrase,
+        },
+    });
+
+    expect(form.querySelector('p')?.innerHTML).toBe(phrase);
+});
+
+test('should validate success', () => {
+    const phrase = 'Paco!';
+
+    const Component = () => {
+        const name = 'firstName';
+        const { successes, setSuccess, values } = React.useContext(FormContext);
+        const value = values[name];
+
+        React.useEffect(() => {
+            !successes[name] && value && setSuccess(name, value);
+        }, [successes, value, setSuccess]);
+
+        return (
+            <>
+                <Input name="firstName" />
+                <p>{successes[name]}</p>}
+            </>
+        );
+    };
+
+    render(
+        <Form>
+            <Component />
+        </Form>
+    );
+
+    const form = document.querySelector('form') as HTMLFormElement;
+    const input = document.querySelector('input');
+
+    fireEvent.change(input as HTMLInputElement, {
+        target: {
+            value: phrase,
         },
     });
 
