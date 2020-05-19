@@ -1,7 +1,7 @@
 {
     "name": "react-form-core",
     "description": "React Form Core is a lightweight utility to create your form components easily.",
-    "version": "6.0.0-beta.1",
+    "version": "6.0.0",
     "author": "Víctor García",
     "license": "MIT",
     "repository": {
