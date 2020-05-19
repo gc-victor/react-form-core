@@ -7,7 +7,7 @@ React Form Core is a lightweight, only 1.1 kB, utility to create your form compo
 [Demo CodeSandbox.](https://codesandbox.io/s/zkrql)
 
 [![typescript](https://badgen.net/badge/icon/typescript?icon=typescript&label)](https://badgen.net/badge/icon/typescript?icon=typescript&label)
-[![minified + gzip](https://badgen.net/bundlephobia/minzip/react-form-core@6.0.0-beta.1)](https://badgen.net/bundlephobia/minzip/react-form-core@6.0.0-beta.1)
+[![minified + gzip](https://badgen.net/bundlephobia/minzip/react-form-core@6.0.0)](https://badgen.net/bundlephobia/minzip/react-form-core@6.0.0)
 [![license](https://badgen.net/npm/license/react-form-core)](https://badgen.net/npm/license/react-form-core)
 
 ## Install
