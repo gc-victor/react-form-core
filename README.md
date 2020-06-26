@@ -22,7 +22,7 @@ First of all, let's create a Validator component to validate the values of the f
 
 `./components/validator.js`
 
-```
+```javascript
 import React, { useContext } from 'react';
 import { FormContext } from 'react-form-core';
 
@@ -51,7 +51,7 @@ Create a simple Field component wrapper with an error message. Use the FormConte
 
 `./components/field.js`
 
-```
+```javascript
 import React, { useContext } from 'react';
 import { FormContext } from 'react-form-core';
 import { Validator } from './validator';
@@ -81,7 +81,7 @@ Use the Field component to create an input.
 
 `./components/input.js`
 
-```
+```javascript
 import React from 'react';
 import { Field } from './components/field';
 
@@ -98,7 +98,7 @@ As you will need to submit the form, let's create a submit button and disabled i
 
 `./components/submit.js`
 
-```
+```javascript
 import React, { useContext } from 'react';
 import { FormContext } from 'react-form-core';
 
@@ -118,7 +118,7 @@ Add the components to the form and create the application view.
 
 `./views/app.js` 
 
-```
+```javascript
 import React, { useContext } from 'react';
 import { Form } from 'react-form-core';
 import { Input } from './components/input';
